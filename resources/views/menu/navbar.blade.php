@@ -125,7 +125,25 @@
                         </a>
                     </li>
 
+                    <li class="pc-item">
+                        <a href="{{ route('Kategori.index') }}" class="pc-link">
+                            <span class="pc-micon"> <i class="ti ti-list-check"></i></span>
+                            <span class="pc-mtext">Kategori</span>
+                        </a>
+                    </li>
+                    <li class="pc-item">
+                        <a href="{{ route('Alat.index') }}" class="pc-link">
+                            <span class="pc-micon"> <i class="ti ti-tools"></i></span>
+                            <span class="pc-mtext">Daftar Alat</span>
+                        </a>
+                    </li>
 
+                    <li class="pc-item">
+                        <a href="{{ route('Log_aktivitas.index') }}" class="pc-link">
+                            <span class="pc-micon"> <i class="ti ti-shield-check"></i></span>
+                            <span class="pc-mtext">Log Aktivitas</span>
+                        </a>
+                    </li>
 
                 </ul>
                 @endauth
