@@ -118,11 +118,20 @@
                             <span class="pc-mtext">Dashboard</span>
                         </a>
                     </li>
+
+                    <li class="pc-item pc-caption">
+                        <label>Pengguna</label>
+                    </li>
+
                     <li class="pc-item">
                         <a href="{{ route('User.user') }}" class="pc-link">
                             <span class="pc-micon"> <i class="ph ph-user-circle-plus"></i></span>
                             <span class="pc-mtext">Tabel User</span>
                         </a>
+                    </li>
+
+                    <li class="pc-item pc-caption">
+                        <label>Master</label>
                     </li>
 
                     <li class="pc-item">
@@ -142,6 +151,13 @@
                         <a href="{{ route('Log_aktivitas.index') }}" class="pc-link">
                             <span class="pc-micon"> <i class="ti ti-shield-check"></i></span>
                             <span class="pc-mtext">Log Aktivitas</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('Peminjaman.index') }}" class="pc-link">
+                            <span class="pc-micon"> <i class="ti ti-brand-telegram"></i></span>
+                            <span class="pc-mtext">Peminjaman</span>
                         </a>
                     </li>
 

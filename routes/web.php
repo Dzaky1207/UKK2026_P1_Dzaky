@@ -7,6 +7,8 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\AlatController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\LogAktivitasController;
+use App\Http\Controllers\PeminjamanController;
+use App\Http\Controllers\PengembalianController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -38,11 +40,11 @@ Route::delete('/user/destroy/{user}', [UserController::class, 'destroy'])->name(
 
 // untuk alat
 Route::get('/alat', [AlatController::class, 'index'])->name('Alat.index');
-Route::get('/alat/create', [AlatController::class, 'create'])->name('alat.create');
-Route::post('/alat/store', [AlatController::class, 'store'])->name('alat.store');
-Route::get('/alat/edit/{alat}', [AlatController::class, 'edit'])->name('alat.edit');
-Route::put('/alat/update/{alat}', [AlatController::class, 'update'])->name('alat.update');
-Route::delete('/alat/destroy/{alat}', [AlatController::class, 'destroy'])->name('alat.destroy');
+Route::get('/alat/create', [AlatController::class, 'create'])->name('Alat.create');
+Route::post('/alat/store', [AlatController::class, 'store'])->name('Alat.store');
+Route::get('/alat/edit/{alat}', [AlatController::class, 'edit'])->name('Alat.edit');
+Route::put('/alat/update/{alat}', [AlatController::class, 'update'])->name('Alat.update');
+Route::delete('/alat/destroy/{alat}', [AlatController::class, 'destroy'])->name('Alat.destroy');
 
 // untuk kategori
 Route::get('/kategori', [KategoriController::class, 'index'])->name('Kategori.index');
@@ -54,5 +56,20 @@ Route::delete('/kategori/destroy/{kategori}', [KategoriController::class, 'destr
 
 // untuk log aktivitas
 Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('Log_aktivitas.index');
+
+// untuk peminjaman
+Route::get('/peminjaman', [PeminjamanController::class, 'index'])->name('Peminjaman.index');
+Route::get('/peminjaman/create', [PeminjamanController::class, 'create'])->name('Peminjaman.create');
+Route::post('/peminjaman/store', [PeminjamanController::class, 'store'])->name('Peminjaman.store');
+Route::get('/peminjaman/edit/{peminjaman}', [PeminjamanController::class, 'edit'])->name('Peminjaman.edit');
+Route::put('/peminjaman/update/{peminjaman}', [PeminjamanController::class, 'update'])->name('Peminjaman.update');
+Route::delete('/peminjaman/destroy/{peminjaman}', [PeminjamanController::class, 'destroy'])->name('Peminjaman.destroy');
+Route::post('/peminjaman/approve/{peminjaman}', [PeminjamanController::class, 'approve'])->name('Peminjaman.approve');
+Route::post('/peminjaman/reject/{peminjaman}', [PeminjamanController::class, 'reject'])->name('Peminjaman.reject');
+
+// untuk pengembalian
+Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('Pengembalian.index');
+Route::get('/pengembalian/create', [PengembalianController::class, 'create'])->name('Pengembalian.create');
+Route::post('/pengembalian/store', [PengembalianController::class, 'store'])->name('Pengembalian.store');
 
 require __DIR__.'/auth.php';
