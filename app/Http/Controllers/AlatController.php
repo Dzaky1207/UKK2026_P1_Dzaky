@@ -31,46 +31,35 @@ class AlatController extends Controller
         $request->validate([
             'nama_alat' => 'required|string|max:255',
             'id_kategori' => 'nullable|exists:kategori,id',
-            'jenis_item' => 'required|in:individu,bundel',
-            'maksimal_poin_pelanggaran' => 'nullable|integer|min:0',
-            'deskripsi' => 'nullable|string',
+            'jenis_item' => 'required|in:individu,bundel', // Sesuaikan enum di DB jika perlu
+            'harga' => 'nullable|numeric', // Tambahkan validasi harga sesuai DB
             'foto' => 'nullable|image|max:2048',
         ]);
 
-        $data = $request->only([
-            'id_kategori',
-            'nama_alat',
-            'jenis_item',
-            'maksimal_poin_pelanggaran',
-            'deskripsi'
-        ]);
-
+        $data = $request->only(['id_kategori', 'nama_alat', 'jenis_item', 'maksimal_poin_pelanggaran', 'deskripsi', 'harga']);
         $data['kode_slug'] = Str::slug($request->nama_alat);
 
-        $filePath = null;
-
         try {
+            DB::beginTransaction(); // Gunakan transaction agar data konsisten
+
             if ($request->hasFile('foto')) {
                 $file = $request->file('foto');
-
-                if ($file->isValid()) {
-                    $filename = time() . '_' . $file->getClientOriginalName();
-                    $file->move(public_path('uploads/alat'), $filename);
-
-                    $filePath = 'uploads/alat/' . $filename;
-                    $data['path_foto'] = $filePath;
-                }
+                $filename = time() . '_' . $file->getClientOriginalName();
+                $file->move(public_path('uploads/alat'), $filename);
+                $data['path_foto'] = 'uploads/alat/' . $filename;
             }
 
             $alat = Alat::create($data);
 
+            // Simpan isi bundle jika jenisnya bundel
             if ($request->jenis_item === 'bundel' && $request->bundel) {
                 foreach ($request->bundel as $item) {
-                    if (!empty($item['id_alat'])) {
+                    if (!empty($item['nama_alat_manual'])) {
                         DB::table('bundel_alat')->insert([
                             'id_bundle' => $alat->id,
-                            'id_alat' => $item['id_alat'],
-                            'jumlah' => $item['jumlah'] ?? 1
+                            'nama_alat_manual' => $item['nama_alat_manual'], // Pastikan kolom ini ada di DB atau sesuaikan
+                            'jumlah' => $item['jumlah'] ?? 1,
+                            'harga_satuan' => $item['harga_satuan'] ?? 0
                         ]);
                     }
                 }
@@ -78,14 +67,11 @@ class AlatController extends Controller
 
             $this->logAktivitas('Buat', 'Alat', "Alat {$alat->nama_alat} ditambahkan");
 
+            DB::commit();
             return redirect()->route('Alat.index')->with('success', 'Alat berhasil ditambahkan');
         } catch (\Exception $e) {
-
-            if ($filePath && File::exists(public_path($filePath))) {
-                File::delete(public_path($filePath));
-            }
-
-            return back()->with('error', 'Gagal menyimpan data');
+            DB::rollback();
+            return back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
         }
     }
 

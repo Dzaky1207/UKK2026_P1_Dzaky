@@ -89,4 +89,39 @@ class PeminjamanController extends Controller
         ]);
         return redirect()->route('Peminjaman.index')->with('success', 'Peminjaman berhasil dihapus');
     }
+
+    public function laporanPeminjam()
+    {
+        // Ambil semua user yang pernah melakukan peminjaman
+        $peminjamList = Peminjaman::select('id_pengguna')
+            ->distinct()
+            ->pluck('id_pengguna');
+
+        $peminjams = User::whereIn('id', $peminjamList)
+            ->with(['peminjaman' => function ($query) {
+                $query->with(['alat', 'pengembalian']);
+            }])
+            ->orderBy('name')
+            ->get();
+
+        return view('Laporan.peminjam', compact('peminjams'));
+    }
+
+    public function detailPeminjam(User $user)
+    {
+        $user->load(['peminjaman' => function ($query) {
+            $query->with(['alat', 'pengembalian', 'petugas']);
+        }]);
+
+        return view('Laporan.detail-peminjam', compact('user'));
+    }
+
+    public function printDetailPeminjam(User $user)
+    {
+        $user->load(['peminjaman' => function ($query) {
+            $query->with(['alat', 'pengembalian', 'petugas']);
+        }]);
+
+        return view('Laporan.detail-peminjam-print', compact('user'));
+    }
 }

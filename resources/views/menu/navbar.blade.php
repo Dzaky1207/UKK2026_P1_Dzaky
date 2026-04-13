@@ -136,17 +136,28 @@
                     </li>
 
                     <li class="pc-item">
+                        <a href="{{ route('Kategori.index') }}" class="pc-link">
+                            <i class="ti ti-list-check"></i>
+                            <span class="pc-mtext">Kategori</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('Lokasi.index') }}" class="pc-link">
+                            <i class="ti ti-map-pin"></i>
+                            <span class="pc-mtext">Lokasi</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
                         <a href="{{ route('Alat.index') }}" class="pc-link">
                             <i class="ti ti-tools"></i>
                             <span class="pc-mtext">CRUD Alat</span>
                         </a>
                     </li>
 
-                    <li class="pc-item">
-                        <a href="{{ route('Kategori.index') }}" class="pc-link">
-                            <i class="ti ti-list-check"></i>
-                            <span class="pc-mtext">Kategori</span>
-                        </a>
+                    <li class="pc-item pc-caption">
+                        <label>UI Components</label>
                     </li>
 
                     <li class="pc-item">
@@ -171,7 +182,7 @@
                     </li>
 
                     <li class="pc-item">
-                        <a href="#" class="pc-link">
+                        <a href="{{ route('Peminjaman.laporanPeminjam') }}" class="pc-link">
                             <i class="ti ti-printer"></i>
                             <span class="pc-mtext">Cetak Laporan</span>
                         </a>
