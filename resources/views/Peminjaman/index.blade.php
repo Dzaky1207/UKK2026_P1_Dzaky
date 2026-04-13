@@ -4,16 +4,19 @@
 <div class="pc-container">
     <div class="pc-content">
 
-        {{-- TABEL ATAS : DATA PEMINJAMAN --}}
+
         <div class="card mb-4">
+            @php
+            $role = auth()->user()->role;
+            @endphp
             <div class="card-body">
                 <h4 class="card-title">Data Peminjaman</h4>
 
-                <div class="d-flex flex-wrap gap-2 mb-3">
-                    <a href="{{ route('Peminjaman.create') }}" class="btn btn-primary">
-                        Ajukan Peminjaman
-                    </a>
-                </div>
+                @if($role == 'user')
+                <a href="{{ route('Peminjaman.create') }}" class="btn btn-primary">
+                    Ajukan Peminjaman
+                </a>
+                @endif
 
                 <div class="table-responsive">
                     <table class="table table-striped">
@@ -25,7 +28,9 @@
                                 <th>Status</th>
                                 <th>Tanggal Pinjam</th>
                                 <th>Jatuh Tempo</th>
+                                @if($role == 'admin' || $role == 'petugas')
                                 <th>Aksi</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -39,6 +44,8 @@
                                     <span class="badge bg-secondary">Menunggu</span>
                                     @elseif($p->status == 'dipinjam')
                                     <span class="badge bg-warning text-dark">Dipinjam</span>
+                                    @elseif($p->status == 'ditolak')
+                                    <span class="badge bg-danger">Ditolak</span>
                                     @endif
                                 </td>
                                 <td>{{ $p->tanggal_pinjam }}</td>
@@ -46,7 +53,7 @@
                                 <td>
                                     <div class="d-flex gap-2">
 
-                                        {{-- Approve / Reject --}}
+                                        @if($role == 'admin' || $role == 'petugas')
                                         @if($p->status == 'menunggu')
                                         <form method="POST" action="{{ route('Peminjaman.approve', $p->id) }}">
                                             @csrf
@@ -58,8 +65,9 @@
                                             <button class="btn btn-secondary btn-sm">Tolak</button>
                                         </form>
                                         @endif
+                                        @endif
 
-                                        {{-- Tombol Kembalikan --}}
+                                        @if($role == 'petugas')
                                         @if($p->status == 'dipinjam')
                                         <form method="POST" action="{{ route('Pengembalian.store') }}">
                                             @csrf
@@ -68,13 +76,15 @@
                                             <button class="btn btn-info btn-sm">Kembalikan</button>
                                         </form>
                                         @endif
+                                        @endif
 
-                                        {{-- Hapus --}}
+                                        @if($role == 'admin')
                                         <form method="POST" action="{{ route('Peminjaman.destroy', $p->id) }}">
                                             @csrf
                                             @method('DELETE')
                                             <button class="btn btn-danger btn-sm">Hapus</button>
                                         </form>
+                                        @endif
 
                                     </div>
                                 </td>
@@ -90,7 +100,6 @@
             </div>
         </div>
 
-        {{-- TABEL BAWAH : DATA PENGEMBALIAN --}}
         <div class="card">
             <div class="card-body">
                 <h4 class="card-title">Data Pengembalian</h4>

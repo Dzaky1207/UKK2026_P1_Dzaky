@@ -22,7 +22,7 @@ class AlatController extends Controller
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
         $allAlat = Alat::where('jenis_item', 'individu')->get();
-        return view('Alat.create', compact('kategoris', 'alat', 'allAlat'));
+        return view('Alat.create', compact('kategoris', 'allAlat'));
     }
 
 

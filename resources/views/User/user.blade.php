@@ -4,8 +4,10 @@
 <div class="pc-container">
     <div class="pc-content">
 
-        {{-- TABEL ATAS : USER AKTIF --}}
         <div class="card mb-4">
+            @php
+            $roleLogin = auth()->user()->role;
+            @endphp
             <div class="card-body">
                 <h4 class="card-title">Data User</h4>
 
@@ -44,7 +46,6 @@
                                             <i class="bi bi-pencil-square"></i>
                                         </a>
 
-                                        {{-- Hapus --}}
                                         <form method="POST" action="{{ route('user.destroy', $u->id) }}">
                                             @csrf
                                             @method('DELETE')

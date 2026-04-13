@@ -112,21 +112,22 @@
 
                     <li class="pc-item">
                         <a href="{{ route('dashboard') }}" class="pc-link">
-                            <span class="pc-micon">
-                                <i class="ph ph-house-line"></i>
-                            </span>
+                            <span class="pc-micon"><i class="ph ph-house-line"></i></span>
                             <span class="pc-mtext">Dashboard</span>
                         </a>
                     </li>
 
+                    {{-- ================= ADMIN ================= --}}
+                    @if($role == 'admin')
+
                     <li class="pc-item pc-caption">
-                        <label>Pengguna</label>
+                        <label>Data Pengguna</label>
                     </li>
 
                     <li class="pc-item">
                         <a href="{{ route('User.user') }}" class="pc-link">
-                            <span class="pc-micon"> <i class="ph ph-user-circle-plus"></i></span>
-                            <span class="pc-mtext">Tabel User</span>
+                            <i class="ph ph-user"></i>
+                            <span class="pc-mtext">CRUD User</span>
                         </a>
                     </li>
 
@@ -135,31 +136,128 @@
                     </li>
 
                     <li class="pc-item">
-                        <a href="{{ route('Kategori.index') }}" class="pc-link">
-                            <span class="pc-micon"> <i class="ti ti-list-check"></i></span>
-                            <span class="pc-mtext">Kategori</span>
+                        <a href="{{ route('Alat.index') }}" class="pc-link">
+                            <i class="ti ti-tools"></i>
+                            <span class="pc-mtext">CRUD Alat</span>
                         </a>
                     </li>
+
                     <li class="pc-item">
-                        <a href="{{ route('Alat.index') }}" class="pc-link">
-                            <span class="pc-micon"> <i class="ti ti-tools"></i></span>
-                            <span class="pc-mtext">Daftar Alat</span>
+                        <a href="{{ route('Kategori.index') }}" class="pc-link">
+                            <i class="ti ti-list-check"></i>
+                            <span class="pc-mtext">Kategori</span>
                         </a>
                     </li>
 
                     <li class="pc-item">
                         <a href="{{ route('Log_aktivitas.index') }}" class="pc-link">
-                            <span class="pc-micon"> <i class="ti ti-shield-check"></i></span>
+                            <i class="ti ti-shield-check"></i>
                             <span class="pc-mtext">Log Aktivitas</span>
                         </a>
                     </li>
 
                     <li class="pc-item">
                         <a href="{{ route('Peminjaman.index') }}" class="pc-link">
-                            <span class="pc-micon"> <i class="ti ti-brand-telegram"></i></span>
-                            <span class="pc-mtext">Peminjaman</span>
+                            <i class="ti ti-stack"></i>
+                            <span class="pc-mtext">Monitoring Peminjaman</span>
                         </a>
                     </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('Pengembalian.index') }}" class="pc-link">
+                            <i class="ti ti-refresh"></i>
+                            <span class="pc-mtext">Pengembalian</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="#" class="pc-link">
+                            <i class="ti ti-printer"></i>
+                            <span class="pc-mtext">Cetak Laporan</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="#" class="pc-link">
+                            <i class="ti ti-history"></i>
+                            <span class="pc-mtext">Riwayat</span>
+                        </a>
+                    </li>
+
+                    @endif
+
+
+                    {{-- ================= PETUGAS ================= --}}
+                    @if($role == 'petugas')
+
+                    <li class="pc-item pc-caption">
+                        <label>Data Pengguna</label>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('User.user') }}" class="pc-link">
+                            <i class="ph ph-user"></i>
+                            <span class="pc-mtext">CRUD User</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item pc-caption">
+                        <label>Master</label>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('Peminjaman.index') }}" class="pc-link">
+                            <i class="ti ti-stack"></i>
+                            <span class="pc-mtext">Monitoring Peminjaman</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('Pengembalian.index') }}" class="pc-link">
+                            <i class="ti ti-refresh"></i>
+                            <span class="pc-mtext">Pengembalian</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="#" class="pc-link">
+                            <i class="ti ti-printer"></i>
+                            <span class="pc-mtext">Cetak Laporan</span>
+                        </a>
+                    </li>
+
+                    @endif
+
+
+                    {{-- ================= PEMINJAM ================= --}}
+                    @if($role == 'user')
+
+                    <li class="pc-item pc-caption">
+                        <label>Master</label>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('Alat.index') }}" class="pc-link">
+                            <i class="ti ti-tools"></i>
+                            <span class="pc-mtext">Lihat Alat</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="{{ route('Peminjaman.create') }}" class="pc-link">
+                            <i class="ti ti-plus"></i>
+                            <span class="pc-mtext">Ajukan Peminjaman</span>
+                        </a>
+                    </li>
+
+                    <li class="pc-item">
+                        <a href="#" class="pc-link">
+                            <i class="ti ti-history"></i>
+                            <span class="pc-mtext">Riwayat</span>
+                        </a>
+                    </li>
+
+                    @endif
 
                 </ul>
                 @endauth

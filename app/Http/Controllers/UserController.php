@@ -8,33 +8,39 @@ use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    /**
-     * Tampilkan semua user
-     */
     public function index()
     {
-        $users = User::latest()->get();
+        $roleLogin = auth()->user()->role;
+
+        if ($roleLogin == 'admin') {
+            $users = User::latest()->get();
+        } else {
+            $users = User::where('role', '!=', 'admin')->latest()->get();
+        }
+
         return view('User.user', compact('users'));
     }
 
-    /**
-     * Form tambah user
-     */
     public function create()
     {
         return view('User.create');
     }
 
-    /**
-     * Simpan user baru
-     */
     public function store(Request $request)
     {
+        $roleLogin = auth()->user()->role;
+
+        if ($roleLogin == 'admin') {
+            $allowedRoles = ['admin', 'petugas', 'peminjam'];
+        } else {
+            $allowedRoles = ['petugas', 'peminjam']; 
+        }
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
-            'role' => 'required|in:admin,petugas,peminjam',
+            'role' => 'required|in:' . implode(',', $allowedRoles),
         ]);
 
         User::create([
@@ -48,27 +54,28 @@ class UserController extends Controller
             ->with('success', 'User berhasil ditambahkan');
     }
 
-    /**
-     * Form edit user
-     */
     public function edit($id)
     {
         $user = User::findOrFail($id);
         return view('User.create', compact('user'));
     }
 
-    /**
-     * Update user
-     */
     public function update(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        $roleLogin = auth()->user()->role;
+
+        if ($roleLogin == 'admin') {
+            $allowedRoles = ['admin', 'petugas', 'peminjam'];
+        } else {
+            $allowedRoles = ['petugas', 'peminjam'];
+        }
 
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $id,
             'password' => 'nullable|min:6',
-            'role' => 'required|in:admin,petugas,peminjam',
+            'role' => 'required|in:' . implode(',', $allowedRoles),
         ]);
 
         $data = [
@@ -77,7 +84,6 @@ class UserController extends Controller
             'role' => $request->role,
         ];
 
-        // kalau password diisi baru update
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -88,11 +94,12 @@ class UserController extends Controller
             ->with('success', 'User berhasil diupdate');
     }
 
-    /**
-     * Hapus user
-     */
     public function destroy($id)
     {
+        if (auth()->user()->role != 'admin') {
+            abort(403, 'Tidak punya akses');
+        }
+
         $user = User::findOrFail($id);
         $user->delete();
 

@@ -10,7 +10,7 @@
 
     @csrf
     @if(isset($user))
-        @method('PUT')
+    @method('PUT')
     @endif
 
     <div class="pc-container">
@@ -19,7 +19,6 @@
                 {{ isset($user) ? 'Edit Data User' : 'Tambah Data User' }}
             </h5>
 
-            {{-- NAMA --}}
             <div class="mb-3">
                 <label class="form-label">Nama</label>
                 <input type="text"
@@ -29,7 +28,6 @@
                     required>
             </div>
 
-            {{-- EMAIL --}}
             <div class="mb-3">
                 <label class="form-label">Email</label>
                 <input type="email"
@@ -39,7 +37,6 @@
                     required>
             </div>
 
-            {{-- PASSWORD --}}
             <div class="mb-3">
                 <label class="form-label">
                     Password {{ isset($user) ? '(Kosongkan jika tidak diubah)' : '' }}
@@ -49,19 +46,25 @@
                     class="form-control">
             </div>
 
-            {{-- ROLE --}}
             <div class="mb-3">
                 <label class="form-label">Role</label>
                 <select name="role" class="form-control" required>
                     @php
-                        $roles = ['admin', 'petugas', 'peminjam'];
-                        $current = old('role', $user->role ?? '');
+                    $roleLogin = auth()->user()->role;
+
+                    if($roleLogin == 'admin'){
+                    $roles = ['admin', 'petugas', 'peminjam'];
+                    } else {
+                    $roles = ['petugas', 'peminjam']; // admin disembunyikan
+                    }
+
+                    $current = old('role', $user->role ?? '');
                     @endphp
 
                     @foreach($roles as $r)
-                        <option value="{{ $r }}" {{ $current == $r ? 'selected' : '' }}>
-                            {{ ucfirst($r) }}
-                        </option>
+                    <option value="{{ $r }}" {{ $current == $r ? 'selected' : '' }}>
+                        {{ ucfirst($r) }}
+                    </option>
                     @endforeach
                 </select>
             </div>

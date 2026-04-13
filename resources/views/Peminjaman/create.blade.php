@@ -30,6 +30,10 @@
                         </select>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Jumlah Unit</label>
+                        <input type="text" name="unit" class="form-control" value="{{ old('unit', $peminjaman->unit ?? '') }}" required>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Tanggal Pinjam</label>
                         <input type="date" name="tanggal_pinjam" class="form-control" value="{{ old('tanggal_pinjam', $peminjaman->tanggal_pinjam ?? '') }}" required>
                     </div>
