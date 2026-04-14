@@ -32,11 +32,18 @@ use Illuminate\Support\Facades\DB;
                             @endforeach
                         </select>
                     </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Harga</label>
+                        <input type="number" name="harga" class="form-control"
+                            value="{{ old('harga', $alat->harga ?? '') }}">
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Jenis Item</label>
                         <select name="jenis_item" id="jenis_item" class="form-control" required>
                             @php
-                            $jenis = ['individu', 'bundel'];
+                            $jenis = ['bundel', 'single', 'bundel_alat'];
                             @endphp
                             @foreach($jenis as $item)
                             <option value="{{ $item }}" {{ old('jenis_item', $alat->jenis_item ?? '') == $item ? 'selected' : '' }}>{{ ucfirst($item) }}</option>
@@ -58,9 +65,8 @@ use Illuminate\Support\Facades\DB;
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th>Nama Sub-alat</th>
+                                                <th>Pilih Alat</th>
                                                 <th style="width: 100px;">Qty</th>
-                                                <th>Harga Satuan (Rp)</th>
                                                 <th style="width: 50px;">Aksi</th>
                                             </tr>
                                         </thead>
@@ -72,13 +78,15 @@ use Illuminate\Support\Facades\DB;
                                             @foreach($bundel_items as $index => $item)
                                             <tr class="bundel-item">
                                                 <td>
-                                                    <input type="text" name="bundel[{{ $index }}][nama_alat_manual]" class="form-control" value="{{ $item->nama_alat_manual ?? '' }}" placeholder="Nama alat..." required>
+                                                    <select name="bundel[{{ $index }}][id_alat]" class="form-control" required>
+                                                        <option value="">-- Pilih Alat --</option>
+                                                        @foreach($allAlat as $a)
+                                                        <option value="{{ $a->id }}" {{ $item->id_alat == $a->id ? 'selected' : '' }}>{{ $a->nama_alat }}</option>
+                                                        @endforeach
+                                                    </select>
                                                 </td>
                                                 <td>
                                                     <input type="number" name="bundel[{{ $index }}][jumlah]" class="form-control" value="{{ $item->jumlah ?? 1 }}" min="1">
-                                                </td>
-                                                <td>
-                                                    <input type="number" name="bundel[{{ $index }}][harga_satuan]" class="form-control" value="{{ $item->harga_satuan ?? 0 }}">
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn btn-danger btn-sm remove-bundel"><i class="feather icon-trash-2"></i></button>
@@ -92,14 +100,17 @@ use Illuminate\Support\Facades\DB;
                             </div>
                         </div>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Maksimal Poin Pelanggaran</label>
                         <input type="number" name="maksimal_poin_pelanggaran" class="form-control" value="{{ old('maksimal_poin_pelanggaran', $alat->maksimal_poin_pelanggaran ?? '') }}">
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Deskripsi</label>
                         <textarea name="deskripsi" class="form-control" rows="4">{{ old('deskripsi', $alat->deskripsi ?? '') }}</textarea>
                     </div>
+
                     <div class="mb-3">
                         <label class="form-label">Foto Alat</label>
                         <input type="file" name="foto" class="form-control">
@@ -107,6 +118,7 @@ use Illuminate\Support\Facades\DB;
                         <img src="{{ asset($alat->path_foto) }}" class="img-fluid mt-2" style="max-height:100px;" alt="Foto Alat">
                         @endif
                     </div>
+
                     <button class="btn btn-primary" type="submit">Simpan</button>
                     <a href="{{ route('Alat.index') }}" class="btn btn-secondary">Kembali</a>
                 </form>
@@ -130,9 +142,15 @@ use Illuminate\Support\Facades\DB;
             const index = bundelItems.children.length;
             const row = `
             <tr class="bundel-item">
-                <td><input type="text" name="bundel[${index}][nama_alat_manual]" class="form-control" placeholder="Nama alat..." required></td>
+                <td>
+                    <select name="bundel[${index}][id_alat]" class="form-control" required>
+                        <option value="">-- Pilih Alat --</option>
+                        @foreach($allAlat as $a)
+                        <option value="{{ $a->id }}">{{ $a->nama_alat }}</option>
+                        @endforeach
+                    </select>
+                </td>
                 <td><input type="number" name="bundel[${index}][jumlah]" class="form-control" value="1" min="1"></td>
-                <td><input type="number" name="bundel[${index}][harga_satuan]" class="form-control" value="0"></td>
                 <td><button type="button" class="btn btn-danger btn-sm remove-bundel"><i class="feather icon-trash-2"></i></button></td>
             </tr>`;
             bundelItems.insertAdjacentHTML('beforeend', row);

@@ -21,7 +21,8 @@ class AlatController extends Controller
     public function create()
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
-        $allAlat = Alat::where('jenis_item', 'individu')->get();
+        $allAlat = Alat::where('jenis_item', '!=', 'bundel')->get();
+
         return view('Alat.create', compact('kategoris', 'allAlat'));
     }
 
@@ -31,8 +32,8 @@ class AlatController extends Controller
         $request->validate([
             'nama_alat' => 'required|string|max:255',
             'id_kategori' => 'nullable|exists:kategori,id',
-            'jenis_item' => 'required|in:individu,bundel', // Sesuaikan enum di DB jika perlu
-            'harga' => 'nullable|numeric', // Tambahkan validasi harga sesuai DB
+            'jenis_item' => 'required|in:bundel,single,bundel_alat',
+            'harga' => 'nullable|numeric',
             'foto' => 'nullable|image|max:2048',
         ]);
 
@@ -54,12 +55,11 @@ class AlatController extends Controller
             // Simpan isi bundle jika jenisnya bundel
             if ($request->jenis_item === 'bundel' && $request->bundel) {
                 foreach ($request->bundel as $item) {
-                    if (!empty($item['nama_alat_manual'])) {
+                    if (!empty($item['id_alat'])) {
                         DB::table('bundel_alat')->insert([
                             'id_bundle' => $alat->id,
-                            'nama_alat_manual' => $item['nama_alat_manual'], // Pastikan kolom ini ada di DB atau sesuaikan
-                            'jumlah' => $item['jumlah'] ?? 1,
-                            'harga_satuan' => $item['harga_satuan'] ?? 0
+                            'id_alat' => $item['id_alat'],
+                            'jumlah' => $item['jumlah'] ?? 1
                         ]);
                     }
                 }
@@ -71,14 +71,15 @@ class AlatController extends Controller
             return redirect()->route('Alat.index')->with('success', 'Alat berhasil ditambahkan');
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Gagal menyimpan data: ' . $e->getMessage());
+            dd($e->getMessage());
         }
     }
 
     public function edit(Alat $alat)
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
-        $allAlat = Alat::where('jenis_item', 'individu')->get();
+        $allAlat = Alat::where('jenis_item', '!=', 'bundel')->get();
+
         return view('Alat.create', compact('kategoris', 'alat', 'allAlat'));
     }
 
@@ -87,7 +88,7 @@ class AlatController extends Controller
         $request->validate([
             'nama_alat' => 'required|string|max:255',
             'id_kategori' => 'nullable|exists:kategori,id',
-            'jenis_item' => 'required|in:individu,bundel',
+            'jenis_item' => 'required|in:bundel,single,bundel_alat',
             'maksimal_poin_pelanggaran' => 'nullable|integer|min:0',
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|max:2048',
@@ -158,6 +159,20 @@ class AlatController extends Controller
         $this->logAktivitas('Hapus', 'Alat', "Alat {$nama} dihapus");
 
         return redirect()->route('Alat.index')->with('success', 'Alat berhasil dihapus');
+    }
+
+    public function show($id)
+    {
+        $alat = Alat::with('kategori', 'units')->findOrFail($id);
+
+        // ambil isi bundel dengan join ke tabel alat
+        $bundel = DB::table('bundel_alat')
+            ->leftJoin('alat', 'bundel_alat.id_alat', '=', 'alat.id')
+            ->where('bundel_alat.id_bundle', $id)
+            ->select('bundel_alat.*', 'alat.nama_alat')
+            ->get();
+
+        return view('Alat.detail', compact('alat', 'bundel'));
     }
 
     protected function logAktivitas($aksi, $modul, $deskripsi)

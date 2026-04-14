@@ -15,6 +15,7 @@
                             <tr>
                                 <th style="width: 50px;">No</th>
                                 <th>Nama Lokasi</th>
+                                <th>Detail</th>
                                 <th style="width: 200px;">Aksi</th>
                             </tr>
                         </thead>
@@ -22,7 +23,8 @@
                             @forelse ($lokasis as $lokasi)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $lokasi->lokasi }}</td>
+                                    <td>{{ $lokasi->name }}</td>
+                                    <td>{{ $lokasi->detail }}</td>
                                     <td>
                                         <a href="{{ route('Lokasi.edit', $lokasi->id) }}" class="btn btn-warning btn-sm">
                                             <i class="feather icon-edit"></i> Edit

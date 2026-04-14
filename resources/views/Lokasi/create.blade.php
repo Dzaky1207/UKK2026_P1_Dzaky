@@ -9,19 +9,31 @@
                 <form action="{{ isset($lokasi) ? route('Lokasi.update', $lokasi->id) : route('Lokasi.store') }}" method="POST">
                     @csrf
                     @if(isset($lokasi))
-                        @method('PUT')
+                    @method('PUT')
                     @endif
                     <div class="mb-3">
                         <label class="form-label">Nama Lokasi</label>
-                        <input 
-                            type="text" 
-                            name="lokasi" 
-                            class="form-control @error('lokasi') is-invalid @enderror" 
-                            value="{{ old('lokasi', $lokasi->lokasi ?? '') }}" 
+                        <input
+                            type="text"
+                            name="name"
+                            class="form-control @error('name') is-invalid @enderror"
+                            value="{{ old('name', $lokasi->name ?? '') }}"
                             placeholder="Masukkan nama lokasi"
                             required>
-                        @error('lokasi')
-                            <span class="invalid-feedback">{{ $message }}</span>
+
+                        @error('name')
+                        <span class="invalid-feedback d-block">{{ $message }}</span>
+                        @enderror
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Detail Lokasi</label>
+                        <textarea
+                            name="detail"
+                            class="form-control @error('detail') is-invalid @enderror"
+                            placeholder="Masukkan detail lokasi"
+                            rows="3">{{ old('detail', $lokasi->detail ?? '') }}</textarea>
+                        @error('detail')
+                        <span class="invalid-feedback">{{ $message }}</span>
                         @enderror
                     </div>
                     <div class="mt-4">

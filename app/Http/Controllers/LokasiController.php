@@ -23,10 +23,14 @@ class LokasiController extends Controller
     {
         $request->validate([
             'lokasi' => 'required|string|max:255',
+            'detail' => 'required|string|max:255',
         ]);
 
-        $lokasi = Lokasi::create($request->only(['lokasi']));
-        $this->logAktivitas('Buat', 'Lokasi', "Lokasi {$lokasi->lokasi} dibuat");
+        Lokasi::create([
+            'name' => $request->name,
+            'detail' => $request->detail
+        ]);
+        $this->logAktivitas('Buat', 'Lokasi', "Lokasi {$lokasi->name} dibuat");
 
         return redirect()->route('Lokasi.index')->with('success', 'Lokasi berhasil ditambahkan');
     }
@@ -39,18 +43,22 @@ class LokasiController extends Controller
     public function update(Request $request, Lokasi $lokasi)
     {
         $request->validate([
-            'lokasi' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
+            'detail' => 'required|string|max:255',
         ]);
 
-        $lokasi->update($request->only(['lokasi']));
-        $this->logAktivitas('Ubah', 'Lokasi', "Lokasi {$lokasi->lokasi} diubah");
+        $lokasi->update([
+            'name' => $request->name,
+            'detail' => $request->detail
+        ]);
+        $this->logAktivitas('Ubah', 'Lokasi', "Lokasi {$lokasi->name} diubah");
 
         return redirect()->route('Lokasi.index')->with('success', 'Lokasi berhasil diupdate');
     }
 
     public function destroy(Lokasi $lokasi)
     {
-        $nama = $lokasi->lokasi;
+        $nama = $lokasi->name;
         $lokasi->delete();
         $this->logAktivitas('Hapus', 'Lokasi', "Lokasi {$nama} dihapus");
 

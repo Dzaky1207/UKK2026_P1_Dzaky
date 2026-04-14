@@ -44,6 +44,7 @@ Route::get('/alat', [AlatController::class, 'index'])->name('Alat.index');
 Route::get('/alat/create', [AlatController::class, 'create'])->name('Alat.create');
 Route::post('/alat/store', [AlatController::class, 'store'])->name('Alat.store');
 Route::get('/alat/edit/{alat}', [AlatController::class, 'edit'])->name('Alat.edit');
+Route::get('/alat/show/{alat}', [AlatController::class, 'show'])->name('Alat.show');
 Route::put('/alat/update/{alat}', [AlatController::class, 'update'])->name('Alat.update');
 Route::delete('/alat/destroy/{alat}', [AlatController::class, 'destroy'])->name('Alat.destroy');
 

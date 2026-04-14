@@ -11,5 +11,5 @@ class Lokasi extends Model
 
     public $timestamps = false;
     protected $table = 'lokasi';
-    protected $fillable = ['lokasi'];
+    protected $fillable = ['name', 'detail'];
 }

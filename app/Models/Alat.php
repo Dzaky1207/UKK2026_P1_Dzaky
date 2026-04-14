@@ -19,6 +19,7 @@ class Alat extends Model
         'deskripsi',
         'kode_slug',
         'path_foto',
+        'harga',
     ];
 
     public function kategori()
@@ -26,8 +27,8 @@ class Alat extends Model
         return $this->belongsTo(Kategori::class, 'id_kategori');
     }
 
-    public function unitAlat()
+    public function units()
     {
-        return $this->hasMany(UnitAlat::class, 'id_alat');
+        return $this->hasMany(Unit::class, 'id_alat');
     }
 }
