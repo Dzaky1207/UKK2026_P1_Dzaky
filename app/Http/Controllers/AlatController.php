@@ -14,8 +14,17 @@ class AlatController extends Controller
 {
     public function index()
     {
-        $alats = Alat::with('kategori')->latest()->get();
-        return view('Alat.index', compact('alats'));
+        $alats = Alat::with('kategori', 'units')
+            ->whereNotIn('id', function ($query) {
+                $query->select('id_alat')->from('bundel_alat');
+            })
+            ->latest()
+            ->get();
+
+        $kategoris = Kategori::orderBy('nama_kategori')->get();
+        $allAlat = Alat::where('jenis_item', '!=', 'bundel')->get();
+
+        return view('Alat.index', compact('alats', 'kategoris', 'allAlat'));
     }
 
     public function create()
@@ -53,13 +62,24 @@ class AlatController extends Controller
             $alat = Alat::create($data);
 
             // Simpan isi bundle jika jenisnya bundel
-            if ($request->jenis_item === 'bundel' && $request->bundel) {
+            if ($request->jenis_item == 'bundel' && $request->bundel) {
+
                 foreach ($request->bundel as $item) {
-                    if (!empty($item['id_alat'])) {
+
+                    if (!empty($item['nama_alat'])) {
+
+                        // 🔹 Simpan ke tabel alat dulu
+                        $alatItem = \App\Models\Alat::create([
+                            'nama_alat' => $item['nama_alat'],
+                            'harga'     => $item['harga'] ?? 0,
+                            'jenis_item' => 'single' // atau default
+                        ]);
+
+                        // 🔹 Simpan ke bundel_alat
                         DB::table('bundel_alat')->insert([
                             'id_bundle' => $alat->id,
-                            'id_alat' => $item['id_alat'],
-                            'jumlah' => $item['jumlah'] ?? 1
+                            'id_alat'   => $alatItem->id,
+                            'jumlah'    => $item['jumlah'] ?? 1,
                         ]);
                     }
                 }
@@ -129,13 +149,24 @@ class AlatController extends Controller
         DB::table('bundel_alat')->where('id_bundle', $alat->id)->delete();
 
         // simpan ulang
-        if ($request->jenis_item === 'bundel' && $request->bundel) {
+        if ($request->jenis_item == 'bundel' && $request->bundel) {
+
             foreach ($request->bundel as $item) {
-                if (!empty($item['id_alat'])) {
+
+                if (!empty($item['nama_alat'])) {
+
+                    // 🔹 Simpan ke tabel alat dulu
+                    $alatItem = \App\Models\Alat::create([
+                        'nama_alat' => $item['nama_alat'],
+                        'harga'     => $item['harga'] ?? 0,
+                        'jenis_item' => 'single' // atau default
+                    ]);
+
+                    // 🔹 Simpan ke bundel_alat
                     DB::table('bundel_alat')->insert([
                         'id_bundle' => $alat->id,
-                        'id_alat' => $item['id_alat'],
-                        'jumlah' => $item['jumlah'] ?? 1
+                        'id_alat'   => $alatItem->id,
+                        'jumlah'    => $item['jumlah'] ?? 1,
                     ]);
                 }
             }
@@ -150,15 +181,42 @@ class AlatController extends Controller
     {
         $nama = $alat->nama_alat;
 
-        if ($alat->path_foto && File::exists(public_path($alat->path_foto))) {
-            File::delete(public_path($alat->path_foto));
+        DB::beginTransaction();
+
+        try {
+            // 🔹 1. Ambil semua id_alat yang ada di bundel ini
+            $bundelItems = DB::table('bundel_alat')
+                ->where('id_bundle', $alat->id)
+                ->pluck('id_alat');
+
+            // 🔹 2. Hapus relasi bundel (yang menunjuk ke alat ini)
+            DB::table('bundel_alat')
+                ->where('id_bundle', $alat->id)
+                ->orWhere('id_alat', $alat->id)
+                ->delete();
+
+            // 🔹 3. Hapus alat hasil generate dari bundel
+            if ($bundelItems->count()) {
+                Alat::whereIn('id', $bundelItems)->delete();
+            }
+
+            // 🔹 4. Hapus foto
+            if ($alat->path_foto && File::exists(public_path($alat->path_foto))) {
+                File::delete(public_path($alat->path_foto));
+            }
+
+            // 🔹 5. Hapus alat utama
+            $alat->delete();
+
+            $this->logAktivitas('Hapus', 'Alat', "Alat {$nama} dihapus");
+
+            DB::commit();
+
+            return redirect()->route('Alat.index')->with('success', 'Alat berhasil dihapus');
+        } catch (\Exception $e) {
+            DB::rollback();
+            dd($e->getMessage());
         }
-
-        $alat->delete();
-
-        $this->logAktivitas('Hapus', 'Alat', "Alat {$nama} dihapus");
-
-        return redirect()->route('Alat.index')->with('success', 'Alat berhasil dihapus');
     }
 
     public function show($id)

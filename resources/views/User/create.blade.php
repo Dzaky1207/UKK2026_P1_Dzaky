@@ -53,9 +53,9 @@
                     $roleLogin = auth()->user()->role;
 
                     if($roleLogin == 'admin'){
-                    $roles = ['admin', 'petugas', 'peminjam'];
+                    $roles = ['admin', 'petugas', 'user'];
                     } else {
-                    $roles = ['petugas', 'peminjam']; // admin disembunyikan
+                    $roles = ['petugas', 'user']; // admin disembunyikan
                     }
 
                     $current = old('role', $user->role ?? '');

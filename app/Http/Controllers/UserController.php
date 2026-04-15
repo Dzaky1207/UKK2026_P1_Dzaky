@@ -31,9 +31,9 @@ class UserController extends Controller
         $roleLogin = auth()->user()->role;
 
         if ($roleLogin == 'admin') {
-            $allowedRoles = ['admin', 'petugas', 'peminjam'];
+            $allowedRoles = ['admin', 'petugas', 'user'];
         } else {
-            $allowedRoles = ['petugas', 'peminjam']; 
+            $allowedRoles = ['petugas', 'user']; 
         }
 
         $request->validate([
@@ -66,9 +66,9 @@ class UserController extends Controller
         $roleLogin = auth()->user()->role;
 
         if ($roleLogin == 'admin') {
-            $allowedRoles = ['admin', 'petugas', 'peminjam'];
+            $allowedRoles = ['admin', 'petugas', 'user'];
         } else {
-            $allowedRoles = ['petugas', 'peminjam'];
+            $allowedRoles = ['petugas', 'user'];
         }
 
         $request->validate([
