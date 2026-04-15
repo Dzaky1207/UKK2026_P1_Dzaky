@@ -17,47 +17,51 @@ class PengembalianController extends Controller
         return view('pengembalian.index', compact('pengembalians'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         $peminjamans = Peminjaman::where('status', 'dipinjam')->with(['pengguna', 'alat'])->get();
+        $peminjaman = Peminjaman::find($request->id_peminjaman);
+        if ($peminjaman) {
+            $peminjaman->update([
+                'status' => 'dikembalikan'
+            ]);
+        }
+
         return view('pengembalian.create', compact('peminjamans'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'id_peminjaman' => 'required|exists:peminjaman,id',
+            'id_peminjaman' => 'required',
             'tanggal_kembali' => 'required|date',
+            'bukti' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
-        DB::beginTransaction();
+        $path = null;
 
-        try {
+        if ($request->hasFile('bukti')) {
+            $filename = time() . '.' . $request->file('bukti')->extension();
+            $request->file('bukti')->move(public_path('bukti'), $filename);
 
-            $peminjaman = Peminjaman::with(['pengguna', 'alat'])
-                ->findOrFail($request->id_peminjaman);
+            $path = 'bukti/' . $filename;
+        }
 
-            Pengembalian::create([
-                'id_peminjaman' => $peminjaman->id,
-                'id_petugas' => auth()->id() ?? 1,
-                'tanggal_kembali' => $request->tanggal_kembali,
-            ]);
+        Pengembalian::create([
+            'id_peminjaman' => $request->id_peminjaman,
+            'tanggal_kembali' => $request->tanggal_kembali,
+            'bukti' => $path,
+            'id_petugas' => auth()->id()
+        ]);
 
+        // ✅ WAJIB
+        $peminjaman = Peminjaman::find($request->id_peminjaman);
+        if ($peminjaman) {
             $peminjaman->update([
                 'status' => 'dikembalikan'
             ]);
-
-            // sementara jangan delete dulu
-            // $peminjaman->delete();
-
-            DB::commit();
-
-            return redirect()->route('Peminjaman.index')
-                ->with('success', 'Pengembalian berhasil');
-        } catch (\Exception $e) {
-
-            DB::rollBack();
-            dd($e->getMessage());
         }
+
+        return back()->with('success', 'Alat berhasil dikembalikan');
     }
 }

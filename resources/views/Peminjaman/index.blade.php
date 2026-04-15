@@ -67,15 +67,12 @@
                                         @endif
                                         @endif
 
-                                        @if($role == 'petugas')
-                                        @if($p->status == 'dipinjam')
-                                        <form method="POST" action="{{ route('Pengembalian.store') }}">
-                                            @csrf
-                                            <input type="hidden" name="id_peminjaman" value="{{ $p->id }}">
-                                            <input type="hidden" name="tanggal_kembali" value="{{ date('Y-m-d') }}">
-                                            <button class="btn btn-info btn-sm">Kembalikan</button>
-                                        </form>
-                                        @endif
+                                        @if($role == 'petugas' && $p->status == 'dipinjam')
+                                        <button class="btn btn-info btn-sm"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#modalKembali{{ $p->id }}">
+                                            Kembalikan
+                                        </button>
                                         @endif
 
                                         @if($role == 'admin')
@@ -89,6 +86,41 @@
                                     </div>
                                 </td>
                             </tr>
+
+                            {{-- ✅ MODAL HARUS DI SINI --}}
+                            @if($p->status == 'dipinjam')
+                            <div class="modal fade" id="modalKembali{{ $p->id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="POST" action="{{ route('Pengembalian.store') }}" enctype="multipart/form-data">
+                                            @csrf
+
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Pengembalian Alat</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <input type="hidden" name="id_peminjaman" value="{{ $p->id }}">
+                                                <input type="hidden" name="tanggal_kembali" value="{{ date('Y-m-d') }}">
+
+                                                <div class="mb-3">
+                                                    <label>Upload Bukti</label>
+                                                    <input type="file" name="bukti" class="form-control" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary">Kirim</button>
+                                            </div>
+
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+
                             @empty
                             <tr>
                                 <td colspan="7" class="text-center">Belum ada peminjaman</td>
@@ -113,17 +145,53 @@
                                 <th>Alat</th>
                                 <th>Tanggal Kembali</th>
                                 <th>Petugas</th>
+                                <th>Bukti</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse ($pengembalians as $k)
+                            @forelse ($pengembalians as $p)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ optional(optional($k->peminjaman)->pengguna)->name ?? '-' }}</td>
-                                <td>{{ optional(optional($k->peminjaman)->alat)->nama_alat ?? '-' }}</td>
-                                <td>{{ $k->tanggal_kembali }}</td>
-                                <td>{{ optional($k->petugas)->name }}</td>
+                                <td>{{ optional(optional($p->peminjaman)->pengguna)->name ?? '-' }}</td>
+                                <td>{{ optional(optional($p->peminjaman)->alat)->nama_alat ?? '-' }}</td>
+                                <td>{{ $p->tanggal_kembali }}</td>
+                                <td>{{ optional($p->petugas)->name }}</td>
+                                <td>
+                                    @if($p->bukti && file_exists(public_path($p->bukti)))
+                                    <img src="{{ asset($p->bukti) }}" width="60">
+                                    @else
+                                    <span class="text-danger">Tidak ada gambar</span>
+                                    @endif
+                                </td>
                             </tr>
+                            <div class="modal fade" id="modalKembali{{ $p->id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <form method="POST" action="{{ route('Pengembalian.store') }}" enctype="multipart/form-data">
+                                            @csrf
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Pengembalian Alat</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+
+                                            <div class="modal-body">
+                                                <input type="hidden" name="id_peminjaman" value="{{ $p->id }}">
+                                                <input type="hidden" name="tanggal_kembali" value="{{ date('Y-m-d') }}">
+
+                                                <div class="mb-3">
+                                                    <label class="form-label">Upload Bukti (Foto)</label>
+                                                    <input type="file" name="bukti" class="form-control" accept="image/*" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="modal-footer">
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button type="submit" class="btn btn-primary">Kirim</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
                             @empty
                             <tr>
                                 <td colspan="5" class="text-center">Belum ada pengembalian</td>
@@ -138,4 +206,5 @@
 
     </div>
 </div>
+
 @endsection
