@@ -189,7 +189,7 @@
                     </li>
 
                     <li class="pc-item">
-                        <a href="#" class="pc-link">
+                        <a href="{{ route('Pengembalian.riwayat') }}" class="pc-link">
                             <i class="ti ti-history"></i>
                             <span class="pc-mtext">Riwayat</span>
                         </a>
@@ -262,7 +262,7 @@
                     </li>
 
                     <li class="pc-item">
-                        <a href="#" class="pc-link">
+                        <a href="{{ route('Pengembalian.riwayat') }}" class="pc-link">
                             <i class="ti ti-history"></i>
                             <span class="pc-mtext">Riwayat</span>
                         </a>

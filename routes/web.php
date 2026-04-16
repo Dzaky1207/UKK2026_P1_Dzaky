@@ -88,6 +88,8 @@ Route::get('/laporan-peminjam/export/{user}', [PeminjamanController::class, 'exp
 Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('Pengembalian.index');
 Route::get('/pengembalian/create', [PengembalianController::class, 'create'])->name('Pengembalian.create');
 Route::post('/pengembalian/store', [PengembalianController::class, 'store'])->name('Pengembalian.store');
-
+Route::post('/pengembalian/proses/{pengembalian}', [PengembalianController::class, 'proses'])->name('Pengembalian.proses');
+Route::get('/pengembalian/riwayat', [PengembalianController::class, 'riwayat'])
+    ->name('Pengembalian.riwayat');
 
 require __DIR__ . '/auth.php';

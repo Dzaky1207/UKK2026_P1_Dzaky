@@ -15,7 +15,8 @@ class Pengembalian extends Model
         'id_peminjaman',
         'id_petugas',
         'tanggal_kembali',
-        'bukti'
+        'bukti',
+        'status'
     ];
 
     public function peminjaman()

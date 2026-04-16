@@ -40,12 +40,18 @@
                                 <td>{{ optional($p->pengguna)->name }}</td>
                                 <td>{{ optional($p->alat)->nama_alat }}</td>
                                 <td>
-                                    @if($p->status == 'menunggu')
-                                    <span class="badge bg-secondary">Menunggu</span>
-                                    @elseif($p->status == 'dipinjam')
-                                    <span class="badge bg-warning text-dark">Dipinjam</span>
-                                    @elseif($p->status == 'ditolak')
+                                    @php
+                                    $status = strtolower(trim($item->status));
+                                    @endphp
+
+                                    @if($status == 'menunggu')
+                                    <span class="badge bg-warning">Menunggu</span>
+                                    @elseif($status == 'diterima')
+                                    <span class="badge bg-success">Diterima</span>
+                                    @elseif($status == 'ditolak')
                                     <span class="badge bg-danger">Ditolak</span>
+                                    @else
+                                    <span class="badge bg-secondary">{{ $item->status }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $p->tanggal_pinjam }}</td>
@@ -96,7 +102,7 @@
                                             @csrf
 
                                             <div class="modal-header">
-                                                <h5 class="modal-title">Pengembalian Alat</h5>
+                                                <h5 class="modal-title">Ajukan Pengembalian</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
 
@@ -110,23 +116,8 @@
                                                 </div>
                                             </div>
 
-                                            <div class="mb-3">
-                                                <label>Kondisi Barang</label>
-                                                <select name="kondisi" class="form-control" required>
-                                                    <option value="">-- Pilih --</option>
-                                                    <option value="baik">Baik</option>
-                                                    <option value="rusak ringan">Rusak Ringan</option>
-                                                    <option value="rusak berat">Rusak Berat</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label>Catatan</label>
-                                                <textarea name="catatan" class="form-control"></textarea>
-                                            </div>
-
                                             <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                 <button type="submit" class="btn btn-primary">Kirim</button>
                                             </div>
 
@@ -146,6 +137,7 @@
                 </div>
             </div>
         </div>
+
         @if($role == 'petugas' || $role == 'admin')
 
         <div class="card">
@@ -159,6 +151,7 @@
                                 <th>No</th>
                                 <th>Pengguna</th>
                                 <th>Alat</th>
+                                <th>Status Pengembalian</th>
                                 <th>Tanggal Kembali</th>
                                 <th>Petugas</th>
                                 <th>Kondisi Barang</th>
@@ -172,9 +165,17 @@
                                 <td>{{ $loop->iteration }}</td>
                                 <td>{{ optional(optional($p->peminjaman)->pengguna)->name ?? '-' }}</td>
                                 <td>{{ optional(optional($p->peminjaman)->alat)->nama_alat ?? '-' }}</td>
+                                <td>
+                                    @if($p->status == 'menunggu')
+                                    <span class="badge bg-warning text-dark">Menunggu</span>
+                                    @elseif($p->status == 'disetujui')
+                                    <span class="badge bg-success">Disetujui</span>
+                                    @elseif($p->status == 'ditolak')
+                                    <span class="badge bg-danger">Ditolak</span>
+                                    @endif
+                                </td>
                                 <td>{{ $p->tanggal_kembali }}</td>
                                 <td>{{ optional($p->petugas)->name }}</td>
-
                                 <td>
                                     @if(optional($p->kondisiUnit)->kondisi == 'baik')
                                     <span class="badge bg-success">Baik</span>
@@ -195,47 +196,54 @@
                                     <span class="text-danger">Tidak ada gambar</span>
                                     @endif
                                 </td>
+                                <td>
+                                    @if($p->status == 'menunggu')
+                                    <button class="btn btn-primary btn-sm"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalProses{{ $p->id }}">
+                                        Proses
+                                    </button>
+                                    @endif
+                                </td>
                             </tr>
-                            <div class="modal fade" id="modalKembali{{ $p->id }}" tabindex="-1">
+                            <div class="modal fade" id="modalProses{{ $p->id }}">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
-                                        <form method="POST" action="{{ route('Pengembalian.store') }}" enctype="multipart/form-data">
+
+                                        <form method="POST" action="{{ route('Pengembalian.proses', $p->id) }}">
                                             @csrf
+
                                             <div class="modal-header">
-                                                <h5 class="modal-title">Pengembalian Alat</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label>Kondisi Barang</label>
-                                                <select name="kondisi" class="form-control" required>
-                                                    <option value="">-- Pilih --</option>
-                                                    <option value="baik">Baik</option>
-                                                    <option value="rusak ringan">Rusak Ringan</option>
-                                                    <option value="rusak berat">Rusak Berat</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label>Catatan</label>
-                                                <textarea name="catatan" class="form-control"></textarea>
+                                                <h5 class="modal-title">Proses Pengembalian</h5>
+                                                <button class="btn-close" data-bs-dismiss="modal"></button>
                                             </div>
 
                                             <div class="modal-body">
-                                                <input type="hidden" name="id_peminjaman" value="{{ $p->id }}">
-                                                <input type="hidden" name="tanggal_kembali" value="{{ date('Y-m-d') }}">
 
                                                 <div class="mb-3">
-                                                    <label class="form-label">Upload Bukti (Foto)</label>
-                                                    <input type="file" name="bukti" class="form-control" accept="image/*" required>
+                                                    <label>Kondisi Barang</label>
+                                                    <select name="kondisi" class="form-control" required>
+                                                        <option value="">-- Pilih --</option>
+                                                        <option value="baik">Baik</option>
+                                                        <option value="rusak ringan">Rusak Ringan</option>
+                                                        <option value="rusak berat">Rusak Berat</option>
+                                                    </select>
                                                 </div>
+
+                                                <div class="mb-3">
+                                                    <label>Catatan</label>
+                                                    <textarea name="catatan" class="form-control"></textarea>
+                                                </div>
+
                                             </div>
 
                                             <div class="modal-footer">
-                                                <button class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                <button type="submit" class="btn btn-primary">Kirim</button>
+                                                <button name="aksi" value="tolak" class="btn btn-danger">Tolak</button>
+                                                <button name="aksi" value="setujui" class="btn btn-success">Setujui</button>
                                             </div>
+
                                         </form>
+
                                     </div>
                                 </div>
                             </div>
