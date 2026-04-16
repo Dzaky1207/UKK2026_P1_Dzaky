@@ -11,7 +11,7 @@ class LogAktivitas extends Model
 
     public $timestamps = false;
     protected $table = 'log_aktivitas';
-    protected $fillable = ['id_pengguna', 'aksi', 'modul', 'deskripsi', 'metadata', 'alamat_ip'];
+    protected $fillable = ['id_pengguna', 'aksi', 'modul', 'deskripsi', 'alamat_ip'];
 
     public function pengguna()
     {

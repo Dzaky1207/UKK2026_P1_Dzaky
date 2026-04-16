@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AlatController;
 use App\Http\Controllers\KategoriController;
 use App\Http\Controllers\LokasiController;
@@ -16,9 +17,7 @@ Route::get('/', function () {
     return view('auth.login');
 })->name('welcome');
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard')->middleware(['auth', 'verified']);
 
 Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login');
 Route::get('/register', [RegisteredUserController::class, 'create'])->name('register');
@@ -76,6 +75,8 @@ Route::put('/peminjaman/update/{peminjaman}', [PeminjamanController::class, 'upd
 Route::delete('/peminjaman/destroy/{peminjaman}', [PeminjamanController::class, 'destroy'])->name('Peminjaman.destroy');
 Route::post('/peminjaman/approve/{peminjaman}', [PeminjamanController::class, 'approve'])->name('Peminjaman.approve');
 Route::post('/peminjaman/reject/{peminjaman}', [PeminjamanController::class, 'reject'])->name('Peminjaman.reject');
+
+// untuk laporan peminjam
 Route::get('/laporan/peminjam', [PeminjamanController::class, 'laporanPeminjam'])->name('Peminjaman.laporanPeminjam');
 Route::get('/laporan/peminjam/{user}', [PeminjamanController::class, 'detailPeminjam'])->name('Peminjaman.detailPeminjam');
 Route::get('/laporan-peminjam/export', [PeminjamanController::class, 'exportExcel'])

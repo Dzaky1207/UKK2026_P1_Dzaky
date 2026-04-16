@@ -110,6 +110,21 @@
                                                 </div>
                                             </div>
 
+                                            <div class="mb-3">
+                                                <label>Kondisi Barang</label>
+                                                <select name="kondisi" class="form-control" required>
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="baik">Baik</option>
+                                                    <option value="rusak ringan">Rusak Ringan</option>
+                                                    <option value="rusak berat">Rusak Berat</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label>Catatan</label>
+                                                <textarea name="catatan" class="form-control"></textarea>
+                                            </div>
+
                                             <div class="modal-footer">
                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                                                 <button type="submit" class="btn btn-primary">Kirim</button>
@@ -146,6 +161,8 @@
                                 <th>Alat</th>
                                 <th>Tanggal Kembali</th>
                                 <th>Petugas</th>
+                                <th>Kondisi Barang</th>
+                                <th>Catatan</th>
                                 <th>Bukti</th>
                             </tr>
                         </thead>
@@ -157,6 +174,20 @@
                                 <td>{{ optional(optional($p->peminjaman)->alat)->nama_alat ?? '-' }}</td>
                                 <td>{{ $p->tanggal_kembali }}</td>
                                 <td>{{ optional($p->petugas)->name }}</td>
+
+                                <td>
+                                    @if(optional($p->kondisiUnit)->kondisi == 'baik')
+                                    <span class="badge bg-success">Baik</span>
+                                    @elseif(optional($p->kondisiUnit)->kondisi == 'rusak ringan')
+                                    <span class="badge bg-warning text-dark">Rusak Ringan</span>
+                                    @elseif(optional($p->kondisiUnit)->kondisi == 'rusak berat')
+                                    <span class="badge bg-danger">Rusak Berat</span>
+                                    @else
+                                    -
+                                    @endif
+                                </td>
+
+                                <td>{{ optional($p->kondisiUnit)->catatan ?? '-' }}</td>
                                 <td>
                                     @if($p->bukti)
                                     <img src="{{ asset($p->bukti) }}" width="60">
@@ -173,6 +204,21 @@
                                             <div class="modal-header">
                                                 <h5 class="modal-title">Pengembalian Alat</h5>
                                                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label>Kondisi Barang</label>
+                                                <select name="kondisi" class="form-control" required>
+                                                    <option value="">-- Pilih --</option>
+                                                    <option value="baik">Baik</option>
+                                                    <option value="rusak ringan">Rusak Ringan</option>
+                                                    <option value="rusak berat">Rusak Berat</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label>Catatan</label>
+                                                <textarea name="catatan" class="form-control"></textarea>
                                             </div>
 
                                             <div class="modal-body">

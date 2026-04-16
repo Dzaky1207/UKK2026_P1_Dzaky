@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengembalian;
 use App\Models\Peminjaman;
+use App\Models\KondisiUnit;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,13 @@ class PengembalianController extends Controller
 {
     public function index()
     {
-        $pengembalians = Pengembalian::with(['peminjaman.pengguna', 'peminjaman.alat', 'petugas'])->latest()->get();
+        $pengembalians = Pengembalian::with([
+            'peminjaman.pengguna',
+            'peminjaman.alat',
+            'petugas',
+            'kondisiUnit' // ✅ penting
+        ])->latest()->get();
+        
         return view('pengembalian.index', compact('pengembalians'));
     }
 
@@ -27,6 +34,8 @@ class PengembalianController extends Controller
         $request->validate([
             'id_peminjaman' => 'required',
             'tanggal_kembali' => 'required|date',
+            'kondisi' => 'required',
+            'catatan' => 'nullable',
             'bukti' => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
@@ -42,11 +51,21 @@ class PengembalianController extends Controller
             $path = 'uploads/bukti/' . $filename; // ✅ simpan ke $path
         }
 
-        Pengembalian::create([
+        $pengembalian = Pengembalian::create([
             'id_peminjaman' => $request->id_peminjaman,
             'tanggal_kembali' => $request->tanggal_kembali,
             'bukti' => $path,
             'id_petugas' => Auth::id()
+        ]);
+
+        // ambil kode_unit dari peminjaman
+        $peminjaman = Peminjaman::with('alat')->find($request->id_peminjaman);
+
+        KondisiUnit::create([
+            'kode_unit' => optional($peminjaman->alat)->kode_unit,
+            'id_pengembalian' => $pengembalian->id,
+            'kondisi' => $request->kondisi,
+            'catatan' => $request->catatan
         ]);
 
         $peminjaman = Peminjaman::find($request->id_peminjaman);

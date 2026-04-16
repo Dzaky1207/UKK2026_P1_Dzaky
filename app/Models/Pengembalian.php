@@ -12,11 +12,11 @@ class Pengembalian extends Model
     public $timestamps = false;
     protected $table = 'pengembalian';
     protected $fillable = [
-        'id_peminjaman', 
-        'id_petugas', 
+        'id_peminjaman',
+        'id_petugas',
         'tanggal_kembali',
         'bukti'
-        ];
+    ];
 
     public function peminjaman()
     {
@@ -26,5 +26,10 @@ class Pengembalian extends Model
     public function petugas()
     {
         return $this->belongsTo(User::class, 'id_petugas');
+    }
+
+    public function kondisiUnit()
+    {
+        return $this->hasOne(KondisiUnit::class, 'id_pengembalian');
     }
 }
