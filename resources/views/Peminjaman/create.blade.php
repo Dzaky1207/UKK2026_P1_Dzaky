@@ -9,23 +9,19 @@
                 <form action="{{ isset($peminjaman) ? route('Peminjaman.update', $peminjaman->id) : route('Peminjaman.store') }}" method="POST">
                     @csrf
                     @if(isset($peminjaman))
-                        @method('PUT')
+                    @method('PUT')
                     @endif
                     <div class="mb-3">
                         <label class="form-label">Pengguna</label>
-                        <select name="id_pengguna" class="form-control" required>
-                            <option value="">Pilih pengguna</option>
-                            @foreach($pengguna as $user)
-                                <option value="{{ $user->id }}" {{ old('id_pengguna', $peminjaman->id_pengguna ?? '') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
-                            @endforeach
-                        </select>
+                        <input type="text" class="form-control" value="{{ auth()->user()->email }}" readonly>
+                        <input type="hidden" name="id_pengguna" value="{{ auth()->id() }}">
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Alat</label>
                         <select name="id_alat" class="form-control" required>
                             <option value="">Pilih alat</option>
                             @foreach($alat as $item)
-                                <option value="{{ $item->id }}" {{ old('id_alat', $peminjaman->id_alat ?? '') == $item->id ? 'selected' : '' }}>{{ $item->nama_alat }}</option>
+                            <option value="{{ $item->id }}" {{ old('id_alat', $peminjaman->id_alat ?? '') == $item->id ? 'selected' : '' }}>{{ $item->nama_alat }}</option>
                             @endforeach
                         </select>
                     </div>

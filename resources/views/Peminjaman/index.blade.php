@@ -67,7 +67,7 @@
                                         @endif
                                         @endif
 
-                                        @if($role == 'petugas' && $p->status == 'dipinjam')
+                                        @if($role == 'user' && $p->status == 'dipinjam')
                                         <button class="btn btn-info btn-sm"
                                             data-bs-toggle="modal"
                                             data-bs-target="#modalKembali{{ $p->id }}">
@@ -131,6 +131,7 @@
                 </div>
             </div>
         </div>
+        @if($role == 'petugas' || $role == 'admin')
 
         <div class="card">
             <div class="card-body">
@@ -157,7 +158,7 @@
                                 <td>{{ $p->tanggal_kembali }}</td>
                                 <td>{{ optional($p->petugas)->name }}</td>
                                 <td>
-                                    @if($p->bukti && file_exists(public_path($p->bukti)))
+                                    @if($p->bukti)
                                     <img src="{{ asset($p->bukti) }}" width="60">
                                     @else
                                     <span class="text-danger">Tidak ada gambar</span>
@@ -203,7 +204,7 @@
 
             </div>
         </div>
-
+        @endif
     </div>
 </div>
 

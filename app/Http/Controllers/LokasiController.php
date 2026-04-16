@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Lokasi;
 use App\Models\LogAktivitas;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class LokasiController extends Controller
@@ -26,10 +27,11 @@ class LokasiController extends Controller
             'detail' => 'required|string|max:255',
         ]);
 
-        Lokasi::create([
+        $lokasi = Lokasi::create([
             'name' => $request->name,
             'detail' => $request->detail
         ]);
+
         $this->logAktivitas('Buat', 'Lokasi', "Lokasi {$lokasi->name} dibuat");
 
         return redirect()->route('Lokasi.index')->with('success', 'Lokasi berhasil ditambahkan');
@@ -68,7 +70,7 @@ class LokasiController extends Controller
     protected function logAktivitas($aksi, $modul, $deskripsi)
     {
         LogAktivitas::create([
-            'id_pengguna' => auth()->id(),
+            'id_pengguna' => Auth::id(),
             'aksi' => $aksi,
             'modul' => $modul,
             'deskripsi' => $deskripsi,

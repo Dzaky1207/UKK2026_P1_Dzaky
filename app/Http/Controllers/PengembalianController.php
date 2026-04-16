@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Pengembalian;
 use App\Models\Peminjaman;
-use Illuminate\Support\Facades\DB;
-use App\Models\UnitAlat;
-
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class PengembalianController extends Controller
@@ -20,12 +18,6 @@ class PengembalianController extends Controller
     public function create(Request $request)
     {
         $peminjamans = Peminjaman::where('status', 'dipinjam')->with(['pengguna', 'alat'])->get();
-        $peminjaman = Peminjaman::find($request->id_peminjaman);
-        if ($peminjaman) {
-            $peminjaman->update([
-                'status' => 'dikembalikan'
-            ]);
-        }
 
         return view('pengembalian.create', compact('peminjamans'));
     }
@@ -41,20 +33,22 @@ class PengembalianController extends Controller
         $path = null;
 
         if ($request->hasFile('bukti')) {
-            $filename = time() . '.' . $request->file('bukti')->extension();
-            $request->file('bukti')->move(public_path('bukti'), $filename);
+            $file = $request->file('bukti');
 
-            $path = 'bukti/' . $filename;
+            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $file->move(public_path('uploads/bukti'), $filename);
+
+            $path = 'uploads/bukti/' . $filename; // ✅ simpan ke $path
         }
 
         Pengembalian::create([
             'id_peminjaman' => $request->id_peminjaman,
             'tanggal_kembali' => $request->tanggal_kembali,
             'bukti' => $path,
-            'id_petugas' => auth()->id()
+            'id_petugas' => Auth::id()
         ]);
 
-        // ✅ WAJIB
         $peminjaman = Peminjaman::find($request->id_peminjaman);
         if ($peminjaman) {
             $peminjaman->update([

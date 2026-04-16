@@ -20,6 +20,7 @@ class Alat extends Model
         'kode_slug',
         'path_foto',
         'harga',
+        'id_lokasi',
     ];
 
     public function kategori()
@@ -30,5 +31,10 @@ class Alat extends Model
     public function units()
     {
         return $this->hasMany(Unit::class, 'id_alat');
+    }
+
+    public function lokasi()
+    {
+        return $this->belongsTo(\App\Models\Lokasi::class, 'id_lokasi');
     }
 }

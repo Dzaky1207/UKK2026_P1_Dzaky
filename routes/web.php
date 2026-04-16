@@ -77,8 +77,11 @@ Route::delete('/peminjaman/destroy/{peminjaman}', [PeminjamanController::class, 
 Route::post('/peminjaman/approve/{peminjaman}', [PeminjamanController::class, 'approve'])->name('Peminjaman.approve');
 Route::post('/peminjaman/reject/{peminjaman}', [PeminjamanController::class, 'reject'])->name('Peminjaman.reject');
 Route::get('/laporan/peminjam', [PeminjamanController::class, 'laporanPeminjam'])->name('Peminjaman.laporanPeminjam');
-Route::get('/laporan/peminjam/{user}/print', [PeminjamanController::class, 'printDetailPeminjam'])->name('Peminjaman.printDetailPeminjam');
 Route::get('/laporan/peminjam/{user}', [PeminjamanController::class, 'detailPeminjam'])->name('Peminjaman.detailPeminjam');
+Route::get('/laporan-peminjam/export', [PeminjamanController::class, 'exportExcel'])
+    ->name('Peminjaman.exportExcel');
+Route::get('/laporan-peminjam/export/{user}', [PeminjamanController::class, 'exportDetailPeminjam'])
+    ->name('Peminjaman.exportDetailPeminjam');
 
 // untuk pengembalian
 Route::get('/pengembalian', [PengembalianController::class, 'index'])->name('Pengembalian.index');
@@ -86,4 +89,4 @@ Route::get('/pengembalian/create', [PengembalianController::class, 'create'])->n
 Route::post('/pengembalian/store', [PengembalianController::class, 'store'])->name('Pengembalian.store');
 
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

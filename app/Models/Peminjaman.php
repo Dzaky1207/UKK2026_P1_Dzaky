@@ -35,7 +35,7 @@ class Peminjaman extends Model
 
     public function unit()
     {
-        return $this->belongsTo(UnitAlat::class, 'kode_unit', 'kode_unit');
+        return $this->belongsTo(Unit::class, 'kode_unit', 'kode_unit');
     }
 
     public function petugas()

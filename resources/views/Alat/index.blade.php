@@ -1,9 +1,5 @@
 @extends('menu.navbar')
 
-<?php
-use Illuminate\Support\Facades\DB;
-?>
-
 @section('content')
 <div class="pc-container">
     <div class="pc-content">
@@ -68,7 +64,7 @@ use Illuminate\Support\Facades\DB;
                                 <td>{{ $alat->kategori->nama_kategori ?? '-' }}</td>
                                 <td>{{ ucfirst($alat->jenis_item) }}</td>
                                 <td>{{ $alat->maksimal_poin_pelanggaran }}</td>
-                                <td>-</td>
+                                <td>{{ $alat->lokasi->name ?? '-' }}</td>
 
                                 <td>
                                     @if($role == 'admin' || $role == 'petugas')
@@ -297,6 +293,17 @@ use Illuminate\Support\Facades\DB;
                         <input type="number" name="harga" class="form-control" value="{{ old('harga', $alat->harga) }}">
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Lokasi</label>
+                        <select name="id_lokasi" class="form-control">
+                            <option value="">Pilih lokasi</option>
+                            @foreach($lokasis as $lokasi)
+                            <option value="{{ $lokasi->id }}" {{ old('id_lokasi', $alat->id_lokasi) == $lokasi->id ? 'selected' : '' }}>
+                                {{ $lokasi->name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Jenis Item</label>
                         <select name="jenis_item" class="form-control jenis-item-modal" data-modal-id="{{ $alat->id }}" required>
                             @php $jenis = ['bundel', 'single', 'bundel_alat']; @endphp
@@ -308,7 +315,8 @@ use Illuminate\Support\Facades\DB;
                         </select>
                     </div>
 
-                    <div class="bundel-section-modal" id="bundel_section_{{ $alat->id }}" style="display: {{ old('jenis_item', $alat->jenis_item) == 'bundel' ? 'block' : 'none' }};">
+                    @if(old('jenis_item', $alat->jenis_item) == 'bundel')
+                    <div class="bundel-section-modal" id="bundel_section_{{ $alat->id }}">
                         <div class="card border border-primary">
                             <div class="card-header bg-light d-flex justify-content-between align-items-center">
                                 <h5 class="card-title mb-0">Isi Bundle Alat</h5>
@@ -359,6 +367,7 @@ use Illuminate\Support\Facades\DB;
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <div class="mb-3">
                         <label class="form-label">Maksimal Poin Pelanggaran</label>

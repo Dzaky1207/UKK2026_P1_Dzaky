@@ -6,6 +6,10 @@ use App\Models\Alat;
 use App\Models\Pengembalian;
 use App\Models\Peminjaman;
 use App\Models\User;
+use App\Exports\PeminjamExport;
+use App\Exports\DetailPeminjamExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class PeminjamanController extends Controller
@@ -46,14 +50,14 @@ class PeminjamanController extends Controller
 
     public function approve(Peminjaman $peminjaman)
     {
-        $peminjaman->update(['status' => 'dipinjam', 'id_petugas' => auth()->id()]);
+        $peminjaman->update(['status' => 'dipinjam', 'id_petugas' => Auth::id()]);
 
         return redirect()->route('Peminjaman.index')->with('success', 'Peminjaman telah disetujui');
     }
 
     public function reject(Peminjaman $peminjaman)
     {
-        $peminjaman->update(['status' => 'ditolak', 'id_petugas' => auth()->id()]);
+        $peminjaman->update(['status' => 'ditolak', 'id_petugas' => Auth::id()]);
 
         return redirect()->route('Peminjaman.index')->with('success', 'Peminjaman telah ditolak');
     }
@@ -90,6 +94,19 @@ class PeminjamanController extends Controller
         return redirect()->route('Peminjaman.index')->with('success', 'Peminjaman berhasil dihapus');
     }
 
+    public function exportDetailPeminjam(User $user)
+    {
+        return Excel::download(
+            new DetailPeminjamExport($user->id),
+            'detail_peminjam_' . $user->name . '.xlsx'
+        );
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new PeminjamExport, 'laporan_peminjam.xlsx');
+    }
+
     public function laporanPeminjam()
     {
         // Ambil semua user yang pernah melakukan peminjaman
@@ -114,14 +131,5 @@ class PeminjamanController extends Controller
         }]);
 
         return view('Laporan.detail-peminjam', compact('user'));
-    }
-
-    public function printDetailPeminjam(User $user)
-    {
-        $user->load(['peminjaman' => function ($query) {
-            $query->with(['alat', 'pengembalian', 'petugas']);
-        }]);
-
-        return view('Laporan.detail-peminjam-print', compact('user'));
     }
 }

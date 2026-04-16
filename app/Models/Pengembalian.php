@@ -11,7 +11,12 @@ class Pengembalian extends Model
 
     public $timestamps = false;
     protected $table = 'pengembalian';
-    protected $fillable = ['id_peminjaman', 'id_petugas', 'tanggal_kembali'];
+    protected $fillable = [
+        'id_peminjaman', 
+        'id_petugas', 
+        'tanggal_kembali',
+        'bukti'
+        ];
 
     public function peminjaman()
     {

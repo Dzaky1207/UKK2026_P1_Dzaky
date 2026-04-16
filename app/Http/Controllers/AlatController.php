@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Alat;
 use App\Models\Kategori;
 use App\Models\LogAktivitas;
+use App\Models\Lokasi;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class AlatController extends Controller
@@ -23,16 +25,18 @@ class AlatController extends Controller
 
         $kategoris = Kategori::orderBy('nama_kategori')->get();
         $allAlat = Alat::where('jenis_item', '!=', 'bundel')->get();
+        $lokasis = Lokasi::all();
 
-        return view('Alat.index', compact('alats', 'kategoris', 'allAlat'));
+        return view('Alat.index', compact('alats', 'kategoris', 'allAlat', 'lokasis'));
     }
 
     public function create()
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
         $allAlat = Alat::where('jenis_item', '!=', 'bundel')->get();
+        $lokasis = \App\Models\Lokasi::all();
 
-        return view('Alat.create', compact('kategoris', 'allAlat'));
+        return view('Alat.create', compact('kategoris', 'allAlat', 'lokasis'));
     }
 
 
@@ -99,8 +103,9 @@ class AlatController extends Controller
     {
         $kategoris = Kategori::orderBy('nama_kategori')->get();
         $allAlat = Alat::where('jenis_item', '!=', 'bundel')->get();
+        $lokasis = \App\Models\Lokasi::all();
 
-        return view('Alat.create', compact('kategoris', 'alat', 'allAlat'));
+        return view('Alat.create', compact('kategoris', 'alat', 'allAlat', 'lokasis'));
     }
 
     public function update(Request $request, Alat $alat)
@@ -112,6 +117,8 @@ class AlatController extends Controller
             'maksimal_poin_pelanggaran' => 'nullable|integer|min:0',
             'deskripsi' => 'nullable|string',
             'foto' => 'nullable|image|max:2048',
+            'harga' => 'nullable|numeric',
+            'id_lokasi' => 'nullable|exists:lokasi,id',
         ]);
 
         $data = $request->only([
@@ -119,7 +126,9 @@ class AlatController extends Controller
             'nama_alat',
             'jenis_item',
             'maksimal_poin_pelanggaran',
-            'deskripsi'
+            'deskripsi',
+            'harga',
+            'id_lokasi'
         ]);
 
         $data['kode_slug'] = Str::slug($request->nama_alat);
@@ -236,7 +245,7 @@ class AlatController extends Controller
     protected function logAktivitas($aksi, $modul, $deskripsi)
     {
         LogAktivitas::create([
-            'id_pengguna' => auth()->id(),
+            'id_pengguna' => Auth::id(),
             'aksi' => $aksi,
             'modul' => $modul,
             'deskripsi' => $deskripsi,
