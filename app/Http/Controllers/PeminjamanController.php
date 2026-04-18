@@ -16,7 +16,7 @@ class PeminjamanController extends Controller
 {
     public function index()
     {
-        $peminjamans = Peminjaman::with(['pengguna', 'alat'])
+        $peminjamans = Peminjaman::with(['user', 'alat'])
             ->where('status', '!=', 'dikembalikan')
             ->latest()
             ->get();
@@ -27,9 +27,9 @@ class PeminjamanController extends Controller
 
     public function create()
     {
-        $pengguna = User::where('role', 'user')->orderBy('name')->get();
+        $user = User::where('role', 'user')->orderBy('name')->get();
         $alat = Alat::orderBy('nama_alat')->get();
-        return view('Peminjaman.create', compact('pengguna', 'alat'));
+        return view('Peminjaman.create', compact('user', 'alat'));
     }
 
     public function store(Request $request)
@@ -64,9 +64,9 @@ class PeminjamanController extends Controller
 
     public function edit(Peminjaman $peminjaman)
     {
-        $pengguna = User::where('role', 'user')->orderBy('name')->get();
+        $user = User::where('role', 'user')->orderBy('name')->get();
         $alat = Alat::orderBy('nama_alat')->get();
-        return view('Peminjaman.create', compact('peminjaman', 'pengguna', 'alat'));
+        return view('Peminjaman.create', compact('peminjaman', 'user', 'alat'));
     }
 
     public function update(Request $request, Peminjaman $peminjaman)

@@ -13,10 +13,14 @@ class Pengembalian extends Model
     protected $table = 'pengembalian';
     protected $fillable = [
         'id_peminjaman',
-        'id_petugas',
         'tanggal_kembali',
         'bukti',
-        'status'
+        'status',       
+        'id_petugas',
+        'catatan',
+        'name',
+        'nama_alat',
+        
     ];
 
     public function peminjaman()
@@ -32,5 +36,10 @@ class Pengembalian extends Model
     public function kondisiUnit()
     {
         return $this->hasOne(KondisiUnit::class, 'id_pengembalian');
+    }
+
+    public function pelanggaran()
+    {
+        return $this->hasOne(Pelanggaran::class, 'id_pengembalian');
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Pengembalian;
 use App\Models\Peminjaman;
 use App\Models\KondisiUnit;
+use App\Models\Pelanggaran;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -13,10 +14,11 @@ class PengembalianController extends Controller
     public function index()
     {
         $pengembalians = Pengembalian::with([
-            'peminjaman.pengguna',
+            'peminjaman.user',
             'peminjaman.alat',
             'petugas',
             'kondisiUnit',
+            'pelanggaran'
         ])->latest()->get();
 
         return view('pengembalian.index', compact('pengembalians'));
@@ -24,7 +26,7 @@ class PengembalianController extends Controller
 
     public function create(Request $request)
     {
-        $peminjamans = Peminjaman::where('status', 'dipinjam')->with(['pengguna', 'alat'])->get();
+        $peminjamans = Peminjaman::where('status', 'dipinjam')->with(['user', 'alat'])->get();
 
         return view('pengembalian.create', compact('peminjamans'));
     }
@@ -32,9 +34,9 @@ class PengembalianController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_peminjaman' => 'required',
+            'id_peminjaman'  => 'required|exists:peminjaman,id',
             'tanggal_kembali' => 'required|date',
-            'bukti' => 'required|image|mimes:jpg,jpeg,png|max:2048'
+            'bukti'          => 'required|image|mimes:jpg,jpeg,png|max:2048'
         ]);
 
         $file = $request->file('bukti');
@@ -42,52 +44,89 @@ class PengembalianController extends Controller
         $file->move(public_path('uploads/bukti'), $filename);
 
         Pengembalian::create([
-            'id_peminjaman' => $request->id_peminjaman,
+            'id_peminjaman'  => $request->id_peminjaman,
             'tanggal_kembali' => $request->tanggal_kembali,
-            'bukti' => 'uploads/bukti/' . $filename,
-            'status' => 'menunggu'
+            'bukti'          => 'uploads/bukti/' . $filename,
+            'status'         => 'menunggu'
         ]);
 
-        return back()->with('success', 'Pengajuan pengembalian dikirim');
+        // Ubah status peminjaman menjadi "menunggu_pengembalian" agar tombol tidak muncul lagi
+        Peminjaman::where('id', $request->id_peminjaman)
+            ->update(['status' => 'menunggu_pengembalian']);
+
+        return back()->with('success', 'Pengajuan pengembalian berhasil dikirim, menunggu konfirmasi petugas.');
     }
 
     public function proses(Request $request, $id)
     {
         $request->validate([
-            'kondisi' => 'required_if:aksi,setujui',
+            'kondisi'               => 'required_if:aksi,setujui',
+            'tanggal_kembali' => 'required_if:aksi,setujui|date',
         ]);
 
-        $pengembalian = Pengembalian::with('peminjaman.pengguna')->findOrFail($id);
+        $pengembalian = Pengembalian::with('peminjaman.user')->findOrFail($id);
+        $peminjaman   = $pengembalian->peminjaman;
 
         if ($request->aksi == 'setujui') {
 
-            // ✅ update status
-            $pengembalian->status = 'disetujui';
+            // Update tanggal kembali aktual yang diinput petugas
+            $pengembalian->tanggal_kembali = $request->tanggal_kembali;
+            $pengembalian->status          = 'disetujui';
 
-            // ✅ simpan kondisi
+            // Simpan kondisi barang
             KondisiUnit::create([
                 'id_pengembalian' => $id,
-                'kondisi' => $request->kondisi,
-                'catatan' => $request->catatan
+                'kondisi'         => $request->kondisi,
+                'catatan'         => $request->catatan,
             ]);
 
-            // ✅ ubah status peminjaman
-            $pengembalian->peminjaman->update([
-                'status' => 'dikembalikan'
-            ]);
+            // Update status peminjaman
+            $peminjaman->update(['status' => 'dikembalikan']);
 
-            // ✅ cek telat
-            if (now()->gt($pengembalian->peminjaman->tanggal_jatuh_tempo)) {
-                $pengembalian->peminjaman->pengguna->increment('poin_pelanggaran', 10);
-            }
+            $tanggalKembali = \Carbon\Carbon::parse($request->tanggal_kembali);
+            $jatuhTempo     = \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo);
+
+            // hitung keterlambatan
+            $hariTerlambat = $jatuhTempo->diffInDays($tanggalKembali, false);
+            $hariTerlambat = max(0, $hariTerlambat);
+
+            // aturan
+            $poinPerHari   = 5;
+            $dendaPer5Poin = 3000;
+
+            // hitung
+            $totalPoin  = $hariTerlambat * $poinPerHari;
+            $totalDenda = $hariTerlambat * 3000;
+
+            // ✅ UPDATE ATAU CREATE
+            Pelanggaran::updateOrCreate(
+                ['id_pengembalian' => $id],
+                [
+                    'id_peminjaman'     => $peminjaman->id,
+                    'id_pengguna'       => $peminjaman->id_pengguna,
+                    'jenis_pelanggaran' => 'terlambat',
+                    'poin'              => $totalPoin,
+                    'hari_terlambat'    => $hariTerlambat,
+                    'denda'             => $totalDenda,
+                    'deskripsi'         => $hariTerlambat > 0
+                        ? "Terlambat {$hariTerlambat} hari"
+                        : "Tidak terlambat",
+                    'status'            => $hariTerlambat > 0 ? 'aktif' : 'selesai',
+                ]
+            );
+
+            // ✅ HANYA SEKALI
+            $peminjaman->user->increment('poin_pelanggaran', $totalPoin);
         } else {
+            // Ditolak — kembalikan status peminjaman agar user bisa ajukan ulang
             $pengembalian->status = 'ditolak';
+            $peminjaman->update(['status' => 'dipinjam']);
         }
 
-        $pengembalian->id_petugas = Auth::user()->id;
+        $pengembalian->id_petugas = Auth::id();
         $pengembalian->save();
 
-        return back()->with('success', 'Pengembalian diproses');
+        return back()->with('success', 'Pengembalian berhasil diproses.');
     }
 
     public function reject(Request $request, $id)

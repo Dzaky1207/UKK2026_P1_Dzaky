@@ -37,11 +37,11 @@
                             @forelse ($peminjamans as $p)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ optional($p->pengguna)->name }}</td>
+                                <td>{{ optional($p->user)->name }}</td>
                                 <td>{{ optional($p->alat)->nama_alat }}</td>
                                 <td>
                                     @php
-                                    $status = strtolower(trim($item->status));
+                                    $status = strtolower(trim($p->status));
                                     @endphp
 
                                     @if($status == 'menunggu')
@@ -51,7 +51,7 @@
                                     @elseif($status == 'ditolak')
                                     <span class="badge bg-danger">Ditolak</span>
                                     @else
-                                    <span class="badge bg-secondary">{{ $item->status }}</span>
+                                    <span class="badge bg-secondary">{{ $p->status }}</span>
                                     @endif
                                 </td>
                                 <td>{{ $p->tanggal_pinjam }}</td>
@@ -157,13 +157,15 @@
                                 <th>Kondisi Barang</th>
                                 <th>Catatan</th>
                                 <th>Bukti</th>
+                                <th>Poin Pelanggaran</th>
+                                <th>Denda</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse ($pengembalians as $p)
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
-                                <td>{{ optional(optional($p->peminjaman)->pengguna)->name ?? '-' }}</td>
+                                <td>{{ optional(optional($p->peminjaman)->user)->name ?? '-' }}</td>
                                 <td>{{ optional(optional($p->peminjaman)->alat)->nama_alat ?? '-' }}</td>
                                 <td>
                                     @if($p->status == 'menunggu')
@@ -179,9 +181,9 @@
                                 <td>
                                     @if(optional($p->kondisiUnit)->kondisi == 'baik')
                                     <span class="badge bg-success">Baik</span>
-                                    @elseif(optional($p->kondisiUnit)->kondisi == 'rusak ringan')
+                                    @elseif(optional($p->kondisiUnit)->kondisi == 'rusak_ringan')
                                     <span class="badge bg-warning text-dark">Rusak Ringan</span>
-                                    @elseif(optional($p->kondisiUnit)->kondisi == 'rusak berat')
+                                    @elseif(optional($p->kondisiUnit)->kondisi == 'rusak_berat')
                                     <span class="badge bg-danger">Rusak Berat</span>
                                     @else
                                     -
@@ -196,6 +198,11 @@
                                     <span class="text-danger">Tidak ada gambar</span>
                                     @endif
                                 </td>
+
+                                <td>
+                                    {{ optional($p->pelanggaran)->poin ?? 0 }}
+                                </td>
+                                <td>Rp {{ optional($p->pelanggaran)->denda ?? 0 }}</td>
                                 <td>
                                     @if($p->status == 'menunggu')
                                     <button class="btn btn-primary btn-sm"
@@ -209,7 +216,6 @@
                             <div class="modal fade" id="modalProses{{ $p->id }}">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
-
                                         <form method="POST" action="{{ route('Pengembalian.proses', $p->id) }}">
                                             @csrf
 
@@ -220,13 +226,35 @@
 
                                             <div class="modal-body">
 
+                                                {{-- Info jatuh tempo sebagai referensi petugas --}}
+                                                <div class="alert alert-info mb-3">
+                                                    <strong>Jatuh Tempo:</strong>
+                                                    {{ optional($p->peminjaman)->tanggal_jatuh_tempo ?? '-' }}
+                                                </div>
+
+                                                <input type="date" name="tanggal_kembali"
+                                                    class="form-control tanggal-kembali"
+                                                    data-id="{{ $p->id }}"
+                                                    data-tempo="{{ optional($p->peminjaman)->tanggal_jatuh_tempo }}"
+                                                    value="{{ date('Y-m-d') }}"
+                                                    required>
                                                 <div class="mb-3">
-                                                    <label>Kondisi Barang</label>
+                                                    <label>Poin Pelanggaran</label>
+                                                    <input type="text" id="poin{{ $p->id }}" class="form-control" readonly value="0">
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label>Denda (Rp)</label>
+                                                    <input type="text" id="denda{{ $p->id }}" class="form-control" readonly value="0">
+                                                </div>
+
+                                                <div class="mb-3">
+                                                    <label>Kondisi Barang </label>
                                                     <select name="kondisi" class="form-control" required>
                                                         <option value="">-- Pilih --</option>
                                                         <option value="baik">Baik</option>
-                                                        <option value="rusak ringan">Rusak Ringan</option>
-                                                        <option value="rusak berat">Rusak Berat</option>
+                                                        <option value="rusak_ringan">Rusak Ringan</option>
+                                                        <option value="rusak_berat">Rusak Berat</option>
                                                     </select>
                                                 </div>
 
@@ -243,7 +271,6 @@
                                             </div>
 
                                         </form>
-
                                     </div>
                                 </div>
                             </div>
@@ -261,5 +288,30 @@
         @endif
     </div>
 </div>
+<script>
+    document.addEventListener('input', function(e) {
+        if (e.target.classList.contains('tanggal-kembali')) {
 
+            let id = e.target.dataset.id;
+            let jatuhTempo = e.target.dataset.tempo;
+
+            let tglKembali = new Date(e.target.value);
+            let tempo = new Date(jatuhTempo);
+
+            let selisih = Math.floor((tglKembali - tempo) / (1000 * 60 * 60 * 24));
+
+            if (selisih < 0) selisih = 0;
+
+            let poin = selisih * 5;
+            let denda = poin * 600;
+
+            let dendaFormatted = denda.toLocaleString('id-ID');
+
+            document.getElementById('denda' + id).value = dendaFormatted;
+
+            document.getElementById('poin' + id).value = poin;
+            document.getElementById('denda' + id).value = denda;
+        }
+    });
+</script>
 @endsection

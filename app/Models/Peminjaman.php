@@ -23,6 +23,12 @@ class Peminjaman extends Model
         'catatan',
     ];
 
+
+    public function pengguna()
+    {
+        return $this->belongsTo(User::class, 'id_pengguna');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'id_pengguna');
