@@ -28,21 +28,54 @@
         <div class="row">
 
             <!-- Jumlah User -->
-            <div class="col-md-6 col-xl-3">
-                <div class="card bg-primary text-white">
-                    <div class="card-body">
-                        <h5 class="mb-2">Total User</h5>
-                        <h2 class="mb-0">{{ $jumlahUser }}</h2>
+            <div class="col-md-12 col-xl-4">
+                <div class="card card-social">
+                    <div class="card-body border-bottom">
+                        <div class="row align-items-center justify-content-center">
+                            <div class="col-auto">
+                                <i class="ti ti-user text-primary f-36"></i>
+                            </div>
+                            <div class="col text-end">
+                                <h3>{{ $jumlahUser }}</h3>
+                                <h5 class="text-success mb-0">
+                                    Data <span class="text-muted">User</span>
+                                </h5>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Jumlah Alat -->
-            <div class="col-md-6 col-xl-3">
-                <div class="card bg-success text-white">
-                    <div class="card-body">
-                        <h5 class="mb-2">Total Alat</h5>
-                        <h2 class="mb-0">{{ $jumlahAlat }}</h2>
+            <div class="col-md-6 col-xl-4">
+                <div class="card card-social">
+                    <div class="card-body border-bottom">
+                        <div class="row align-items-center justify-content-center">
+                            <div class="col-auto">
+                                <i class="ti ti-tool text-info f-36"></i>
+                            </div>
+                            <div class="col text-end">
+                                <h3>{{ $jumlahAlat }}</h3>
+                                <h5 class="text-info mb-0">
+                                    Data <span class="text-muted">Alat</span>
+                                </h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-xl-4">
+                <div class="card card-social">
+                    <div class="card-body border-bottom">
+                        <div class="row align-items-center justify-content-center">
+                            <div class="col-auto">
+                                <i class="ti ti-shopping-cart text-danger f-36"></i>
+                            </div>
+                            <div class="col text-end">
+                                <h3>{{ $jumlahPeminjaman }}</h3>
+                                <h5 class="text-danger mb-0">
+                                    Data <span class="text-muted">Peminjaman</span>
+                                </h5>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

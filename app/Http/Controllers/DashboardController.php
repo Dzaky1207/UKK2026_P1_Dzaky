@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Alat;
+use App\Models\Peminjaman;
 
 class DashboardController extends Controller
 {
@@ -12,7 +13,8 @@ class DashboardController extends Controller
     {
         $jumlahUser = User::count();
         $jumlahAlat = Alat::count();
+        $jumlahPeminjaman = Peminjaman::count();
 
-        return view('dashboard', compact('jumlahUser', 'jumlahAlat'));
+        return view('dashboard', compact('jumlahUser', 'jumlahAlat', 'jumlahPeminjaman'));
     }
 }

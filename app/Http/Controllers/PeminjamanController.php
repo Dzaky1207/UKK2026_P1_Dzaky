@@ -109,7 +109,6 @@ class PeminjamanController extends Controller
 
     public function laporanPeminjam()
     {
-        // Ambil semua user yang pernah melakukan peminjaman
         $peminjamList = Peminjaman::select('id_pengguna')
             ->distinct()
             ->pluck('id_pengguna');

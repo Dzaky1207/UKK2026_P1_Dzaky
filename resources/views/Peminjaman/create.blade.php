@@ -45,7 +45,7 @@
                         <label class="form-label">Catatan</label>
                         <textarea name="catatan" class="form-control" rows="3">{{ old('catatan', $peminjaman->catatan ?? '') }}</textarea>
                     </div>
-                    <button class="btn btn-primary" type="submit">Simpan</button>
+                    <button class="btn btn-primary" type="submit">Submit</button>
                     <a href="{{ route('Peminjaman.index') }}" class="btn btn-secondary">Kembali</a>
                 </form>
             </div>

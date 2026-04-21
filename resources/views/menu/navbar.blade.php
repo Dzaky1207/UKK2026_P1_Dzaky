@@ -175,13 +175,6 @@
                     </li>
 
                     <li class="pc-item">
-                        <a href="{{ route('Pengembalian.index') }}" class="pc-link">
-                            <i class="ti ti-refresh"></i>
-                            <span class="pc-mtext">Pengembalian</span>
-                        </a>
-                    </li>
-
-                    <li class="pc-item">
                         <a href="{{ route('Peminjaman.laporanPeminjam') }}" class="pc-link">
                             <i class="ti ti-printer"></i>
                             <span class="pc-mtext">Cetak Laporan</span>
@@ -220,13 +213,6 @@
                         <a href="{{ route('Peminjaman.index') }}" class="pc-link">
                             <i class="ti ti-stack"></i>
                             <span class="pc-mtext">Monitoring Peminjaman</span>
-                        </a>
-                    </li>
-
-                    <li class="pc-item">
-                        <a href="{{ route('Pengembalian.index') }}" class="pc-link">
-                            <i class="ti ti-refresh"></i>
-                            <span class="pc-mtext">Pengembalian</span>
                         </a>
                     </li>
 
@@ -275,6 +261,8 @@
             </div>
         </div>
     </nav>
+
+    
     <!-- [ Sidebar Menu ] end -->
     <!-- [ Header Topbar ] start -->
     <header class="pc-header">

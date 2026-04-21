@@ -22,9 +22,6 @@
                 <a href="{{ route('Peminjaman.laporanPeminjam') }}" class="btn btn-secondary mb-3">
                     <i class="feather icon-arrow-left"></i> Kembali
                 </a>
-                <a href="{{ route('Peminjaman.printDetailPeminjam', $user->id) }}" class="btn btn-danger mb-3" target="_blank">
-                    <i class="feather icon-printer"></i> Print
-                </a>
 
                 <hr>
 

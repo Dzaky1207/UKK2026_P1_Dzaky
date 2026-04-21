@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategori;
 use App\Models\LogAktivitas;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class KategoriController extends Controller
@@ -62,7 +63,7 @@ class KategoriController extends Controller
     protected function logAktivitas($aksi, $modul, $deskripsi)
     {
         LogAktivitas::create([
-            'id_pengguna' => auth()->id(),
+            'id_pengguna' => Auth::id(),
             'aksi' => $aksi,
             'modul' => $modul,
             'deskripsi' => $deskripsi,

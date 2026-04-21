@@ -13,7 +13,7 @@ class LogAktivitas extends Model
     protected $table = 'log_aktivitas';
     protected $fillable = ['id_pengguna', 'aksi', 'modul', 'deskripsi', 'alamat_ip'];
 
-    public function pengguna()
+    public function user()
     {
         return $this->belongsTo(User::class, 'id_pengguna');
     }

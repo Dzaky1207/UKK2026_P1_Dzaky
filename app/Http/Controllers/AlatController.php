@@ -54,7 +54,7 @@ class AlatController extends Controller
         $data['kode_slug'] = Str::slug($request->nama_alat);
 
         try {
-            DB::beginTransaction(); // Gunakan transaction agar data konsisten
+            DB::beginTransaction();
 
             if ($request->hasFile('foto')) {
                 $file = $request->file('foto');
@@ -65,21 +65,18 @@ class AlatController extends Controller
 
             $alat = Alat::create($data);
 
-            // Simpan isi bundle jika jenisnya bundel
             if ($request->jenis_item == 'bundel' && $request->bundel) {
 
                 foreach ($request->bundel as $item) {
 
                     if (!empty($item['nama_alat'])) {
 
-                        // 🔹 Simpan ke tabel alat dulu
                         $alatItem = \App\Models\Alat::create([
                             'nama_alat' => $item['nama_alat'],
                             'harga'     => $item['harga'] ?? 0,
-                            'jenis_item' => 'single' // atau default
+                            'jenis_item' => 'single'
                         ]);
 
-                        // 🔹 Simpan ke bundel_alat
                         DB::table('bundel_alat')->insert([
                             'id_bundle' => $alat->id,
                             'id_alat'   => $alatItem->id,
@@ -133,18 +130,15 @@ class AlatController extends Controller
 
         $data['kode_slug'] = Str::slug($request->nama_alat);
 
-        // 🔥 kalau upload foto baru
         if ($request->hasFile('foto')) {
             $file = $request->file('foto');
 
             if ($file->isValid()) {
 
-                // ✅ hapus foto lama
                 if ($alat->path_foto && File::exists(public_path($alat->path_foto))) {
                     File::delete(public_path($alat->path_foto));
                 }
 
-                // ✅ simpan foto baru
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->move(public_path('uploads/alat'), $filename);
 
@@ -154,24 +148,20 @@ class AlatController extends Controller
 
         $alat->update($data);
 
-        // hapus bundel lama
         DB::table('bundel_alat')->where('id_bundle', $alat->id)->delete();
 
-        // simpan ulang
         if ($request->jenis_item == 'bundel' && $request->bundel) {
 
             foreach ($request->bundel as $item) {
 
                 if (!empty($item['nama_alat'])) {
 
-                    // 🔹 Simpan ke tabel alat dulu
                     $alatItem = \App\Models\Alat::create([
                         'nama_alat' => $item['nama_alat'],
                         'harga'     => $item['harga'] ?? 0,
-                        'jenis_item' => 'single' // atau default
+                        'jenis_item' => 'single'
                     ]);
 
-                    // 🔹 Simpan ke bundel_alat
                     DB::table('bundel_alat')->insert([
                         'id_bundle' => $alat->id,
                         'id_alat'   => $alatItem->id,
@@ -193,28 +183,23 @@ class AlatController extends Controller
         DB::beginTransaction();
 
         try {
-            // 🔹 1. Ambil semua id_alat yang ada di bundel ini
             $bundelItems = DB::table('bundel_alat')
                 ->where('id_bundle', $alat->id)
                 ->pluck('id_alat');
 
-            // 🔹 2. Hapus relasi bundel (yang menunjuk ke alat ini)
             DB::table('bundel_alat')
                 ->where('id_bundle', $alat->id)
                 ->orWhere('id_alat', $alat->id)
                 ->delete();
 
-            // 🔹 3. Hapus alat hasil generate dari bundel
             if ($bundelItems->count()) {
                 Alat::whereIn('id', $bundelItems)->delete();
             }
 
-            // 🔹 4. Hapus foto
             if ($alat->path_foto && File::exists(public_path($alat->path_foto))) {
                 File::delete(public_path($alat->path_foto));
             }
 
-            // 🔹 5. Hapus alat utama
             $alat->delete();
 
             $this->logAktivitas('Hapus', 'Alat', "Alat {$nama} dihapus");
@@ -232,7 +217,6 @@ class AlatController extends Controller
     {
         $alat = Alat::with('kategori', 'units')->findOrFail($id);
 
-        // ambil isi bundel dengan join ke tabel alat
         $bundel = DB::table('bundel_alat')
             ->leftJoin('alat', 'bundel_alat.id_alat', '=', 'alat.id')
             ->where('bundel_alat.id_bundle', $id)

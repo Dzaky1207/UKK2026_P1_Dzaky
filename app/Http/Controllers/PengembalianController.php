@@ -50,7 +50,6 @@ class PengembalianController extends Controller
             'status'         => 'menunggu'
         ]);
 
-        // Ubah status peminjaman menjadi "menunggu_pengembalian" agar tombol tidak muncul lagi
         Peminjaman::where('id', $request->id_peminjaman)
             ->update(['status' => 'menunggu_pengembalian']);
 
@@ -69,36 +68,29 @@ class PengembalianController extends Controller
 
         if ($request->aksi == 'setujui') {
 
-            // Update tanggal kembali aktual yang diinput petugas
             $pengembalian->tanggal_kembali = $request->tanggal_kembali;
             $pengembalian->status          = 'disetujui';
 
-            // Simpan kondisi barang
             KondisiUnit::create([
                 'id_pengembalian' => $id,
                 'kondisi'         => $request->kondisi,
                 'catatan'         => $request->catatan,
             ]);
 
-            // Update status peminjaman
             $peminjaman->update(['status' => 'dikembalikan']);
 
             $tanggalKembali = \Carbon\Carbon::parse($request->tanggal_kembali);
             $jatuhTempo     = \Carbon\Carbon::parse($peminjaman->tanggal_jatuh_tempo);
 
-            // hitung keterlambatan
             $hariTerlambat = $jatuhTempo->diffInDays($tanggalKembali, false);
             $hariTerlambat = max(0, $hariTerlambat);
 
-            // aturan
             $poinPerHari   = 5;
             $dendaPer5Poin = 3000;
 
-            // hitung
             $totalPoin  = $hariTerlambat * $poinPerHari;
             $totalDenda = $hariTerlambat * 3000;
 
-            // ✅ UPDATE ATAU CREATE
             Pelanggaran::updateOrCreate(
                 ['id_pengembalian' => $id],
                 [
@@ -115,10 +107,8 @@ class PengembalianController extends Controller
                 ]
             );
 
-            // ✅ HANYA SEKALI
             $peminjaman->user->increment('poin_pelanggaran', $totalPoin);
         } else {
-            // Ditolak — kembalikan status peminjaman agar user bisa ajukan ulang
             $pengembalian->status = 'ditolak';
             $peminjaman->update(['status' => 'dipinjam']);
         }
@@ -134,11 +124,10 @@ class PengembalianController extends Controller
         $pengembalian = Pengembalian::findOrFail($id);
 
         $pengembalian->status = 'ditolak';
-        $pengembalian->catatan = $request->catatan; // simpan catatan
+        $pengembalian->catatan = $request->catatan;
 
         $pengembalian->save();
 
-        // simpan ke tabel kondisi_unit
         KondisiUnit::create([
             'kode_unit' => $request->kode_unit,
             'id_pengembalian' => $pengembalian->id,
